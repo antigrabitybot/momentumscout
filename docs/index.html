@@ -89,6 +89,8 @@ body{color:var(--txt);min-height:100vh;
 .pearn{background:rgba(255,69,58,.16);color:var(--up)}
 .pshite{background:rgba(191,90,242,.18);color:#bf5af2}
 .pinst{background:rgba(10,132,255,.16);color:#0a84ff}
+.psolo{background:rgba(255,159,10,.16);color:#ff9f0a}
+.pscore{background:rgba(48,209,88,.16);color:#30d158}
 .secmap{padding:12px;margin-bottom:16px}
 .sectiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .stile{border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;
@@ -196,6 +198,7 @@ option{color:#000}
   <div id="demoBanner" class="demo" style="display:none">デモデータを表示中。バッチ実行後に data.json が読み込まれます</div>
   <div class="seg card" id="segPeriod">
     <button data-p="vr1" class="num">前日比</button>
+    <button data-p="vr3" class="num">3日</button>
     <button data-p="vr5" class="on num">5日</button>
     <button data-p="vr20" class="num">20日</button>
   </div>
@@ -207,7 +210,11 @@ option{color:#000}
     <canvas id="bubble"></canvas>
     <span class="axl" id="axY" style="top:8px;left:12px">過熱度 ↑</span>
     <span class="axl" id="axX" style="bottom:6px;right:12px">出来高変化率 →</span>
+    <button id="zoomReset" style="display:none;position:absolute;top:6px;right:8px;z-index:3;
+      background:var(--glass2);border:1px solid var(--line);border-radius:8px;color:var(--txt);
+      font-size:11px;padding:4px 10px;font-family:inherit;cursor:pointer">⟲ 元に戻す</button>
   </div>
+  <p style="font-size:10px;color:var(--txt3);margin:-6px 2px 10px">ピンチ/ホイールで拡大、ドラッグで移動。拡大すると銘柄名が表示されます</p>
   <div class="disc" id="secToggle"><span>セクター資金マップ</span><span id="secArrow">▾</span></div>
   <div class="card secmap" id="secMap" style="display:none">
     <div class="sectiles" id="secTiles"></div>
@@ -215,6 +222,16 @@ option{color:#000}
   </div>
   <p class="sechead" id="listHead">上位候補</p>
   <div class="card listcard" id="homeList"></div>
+</main>
+
+<main id="pg-scores" class="page">
+  <h1 class="ltitle">買い候補</h1>
+  <p class="sub">7項目チェック: 出来高2〜4× / エントリーパターン / 撤退シグナルなし /
+    過熱度30〜60 / 売買代金10億+ / 決算近接なし / 業種に資金流入</p>
+  <div id="scoreGroups"></div>
+  <p style="font-size:10px;color:var(--txt3);padding:8px 2px;line-height:1.7">
+    ルールに基づく機械的スクリーニングであり投資助言ではありません。
+    最終判断の前に外部チャートと材料（🔍推論）を確認してください。</p>
 </main>
 
 <main id="pg-screener" class="page">
@@ -270,6 +287,11 @@ option{color:#000}
       <button class="btn" id="testHook" style="flex:1">テスト送信</button>
       <button class="btn" id="askNotif" style="flex:1">端末通知を許可</button>
     </div>
+    <p style="font-size:12px;color:var(--txt2);line-height:1.7;margin-top:12px">
+      <b>買い候補スコアの定時通知</b>（既定: 平日8:30に5/7以上を通知）:
+      GitHubリポジトリの <span class="num">.github/workflows/notify.yml</span> を編集して
+      時刻（cron・UTC表記）と最低スコア（SCORE_MIN）を変更できます。
+      アプリからは変更できません（GitHub Actionsの仕様）。</p>
   </div>
   <div class="ctl card">
     <label>推論API（出来高増加の理由）</label>
@@ -315,6 +337,7 @@ option{color:#000}
   <canvas class="spark" id="dSpark"></canvas>
   <p style="font-size:11px;color:var(--txt3);text-align:center;margin-bottom:12px">出来高 直近20営業日</p>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="dStats"></div>
+  <div id="dScore"></div>
   <div class="linkrow">
     <a id="lkGf" class="pri" target="_blank" rel="noopener">Google Finance</a>
     <a id="lkTv" target="_blank" rel="noopener">TradingView</a>
@@ -327,12 +350,15 @@ option{color:#000}
 
 <nav class="tabbar">
   <button data-pg="home" class="on"><span class="ic">◉</span>ホーム</button>
-  <button data-pg="screener"><span class="ic">⚲</span>スクリーナー</button>
+  <button data-pg="scores"><span class="ic">◎</span>候補</button>
+  <button data-pg="screener"><span class="ic">⚲</span>絞込</button>
   <button data-pg="watch"><span class="ic">★</span>ウォッチ</button>
   <button data-pg="settings"><span class="ic">⚙</span>設定</button>
 </nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
@@ -405,7 +431,18 @@ function earnPill(s){const f=earnFlag(s);
 function alertPills(s){
   return(s.alerts||[]).map(a=>a==="仕手警戒"
     ?`<span class="pill pshite">⚡仕手警戒</span>`
-    :`<span class="pill pinst">🏦${a}</span>`).join("")}
+    :`<span class="pill pinst">🏦${a}</span>`).join("")
+  +(s.solo?`<span class="pill psolo">📌個別材料?</span>`:"")
+  +(s.score>=5?`<span class="pill pscore">◎${s.score}/7</span>`:"")}
+
+// 分析ドキュメント§2のゾーン解釈ラベル
+const heatZone=h=>h==null?null
+  :h<30?["初動","var(--txt3)"]:h<60?["助走","#30d158"]
+  :h<70?["警戒","#ffd60a"]:["撤退圏","var(--up)"];
+const vr5Zone=v=>v==null||v<2?null
+  :v<=4?["狙い目","#30d158"]:v<6?["強い","#ffd60a"]:["急騰⚠","var(--up)"];
+const CHECK_LABELS=["出来高2〜4×","エントリーパターン","撤退シグナルなし",
+  "過熱度30〜60","売買代金10億+","決算近接なし","業種に資金流入"];
 
 function row(s,showExit){
   const isW=state.watch.includes(s.code);
@@ -428,7 +465,7 @@ function renderSectorMap(){
   $("#secTiles").innerHTML=secs.map(s=>`
     <div class="stile ${state.sectorFilter===s.name?"on":""}" data-sec="${s.name}"
       style="background:${secColor(s.vr5med)}">
-      <span class="sn">${s.name}</span>
+      <span class="sn">${s.vr5med>=1.5?"🔥":""}${s.name}</span>
       <span class="sv num">×${s.vr5med}</span>
       <span style="font-size:10px;color:var(--txt2)" class="num">代金${s.toChg>0?"+":""}${s.toChg}%</span>
     </div>`).join("");
@@ -439,7 +476,7 @@ function renderHome(){
   const key=state.period;
   let pool=[...d.stocks];
   if(state.sectorFilter)pool=pool.filter(s=>s.sector===state.sectorFilter);
-  const top=pool.sort((a,b)=>b[key]-a[key]).slice(0,30);
+  const top=pool.sort((a,b)=>(b[key]??-1e18)-(a[key]??-1e18)).slice(0,30);
   $("#listHead").textContent=state.sectorFilter
     ?`${state.sectorFilter} ${top.length}件`:`上位候補 ${top.length}件`;
   $("#homeList").innerHTML=top.map(s=>row(s)).join("")
@@ -450,8 +487,55 @@ function renderHome(){
   $("#axX").style.display=trend?"none":"";
   if(trend)drawTrend(pool);else drawBubble(top);
 }
+// ---- ズーム共通設定 (chartjs-plugin-zoom) ----
+function zoomOpts(){return{
+  pan:{enabled:true,mode:"xy",threshold:8},
+  zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:"xy",
+    onZoomComplete:({chart})=>{
+      $("#zoomReset").style.display=chart.getZoomLevel()>1.02?"block":"none"}}}}
+$("#zoomReset").onclick=()=>{
+  if(state.bubbleChart&&state.bubbleChart.resetZoom)state.bubbleChart.resetZoom();
+  $("#zoomReset").style.display="none"};
+
+// ---- ズーム時に銘柄名バッジをcanvas描画するプラグイン ----
+const nameBadge={id:"nameBadge",
+  afterDatasetsDraw(c){
+    if(c.canvas.id!=="bubble")return;
+    const zoomed=(c.getZoomLevel?c.getZoomLevel():1)>1.15;
+    const a=c.chartArea,items=[];
+    if(c.config.type==="bubble"){
+      const names=c.config._names||[];
+      c.getDatasetMeta(0).data.forEach((el,i)=>{
+        if(el.x<a.left||el.x>a.right||el.y<a.top||el.y>a.bottom)return;
+        items.push({x:el.x,y:el.y-(el.options.radius||5)-3,label:names[i]||""})});
+    }else{
+      c.data.datasets.forEach((ds,di)=>{
+        let last=null;
+        c.getDatasetMeta(di).data.forEach(el=>{
+          if(el.x>=a.left&&el.x<=a.right&&el.y>=a.top&&el.y<=a.bottom)last=el});
+        if(last)items.push({x:last.x,y:last.y-3,label:ds.label,color:ds.borderColor})});
+    }
+    if(!zoomed&&items.length>10)return; // 未ズームで密集時は非表示
+    const ctx=c.ctx;ctx.save();
+    ctx.font="600 10px -apple-system,'Hiragino Sans',sans-serif";
+    items.slice(0,25).forEach(it=>{
+      const t=it.label.length>8?it.label.slice(0,8)+"…":it.label;
+      const w=ctx.measureText(t).width+10;
+      const bx=Math.min(Math.max(it.x-w/2,a.left),a.right-w);
+      const by=Math.max(it.y-15,a.top);
+      ctx.fillStyle="rgba(20,20,22,.82)";
+      ctx.beginPath();
+      ctx.roundRect?ctx.roundRect(bx,by,w,14,4):ctx.rect(bx,by,w,14);
+      ctx.fill();
+      ctx.fillStyle=it.color||"#e8e8ed";
+      ctx.fillText(t,bx+5,by+10.5)});
+    ctx.restore();
+  }};
+if(window.Chart)Chart.register(nameBadge);
+
 function drawBubble(list){
   if(state.bubbleChart)state.bubbleChart.destroy();
+  $("#zoomReset").style.display="none";
   const key=state.period;
   const pts=list.map(s=>({x:s[key],y:s.heat,r:Math.max(5,Math.sqrt(s.turnover)*1.1),
     code:s.code,c:chgColor(s.r1),
@@ -464,15 +548,18 @@ function drawBubble(list){
     options:{responsive:true,maintainAspectRatio:false,
       layout:{padding:{top:28,right:16,bottom:22,left:10}},
       scales:{x:{display:false,min:0},y:{display:false,min:0,max:100}},
-      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      plugins:{legend:{display:false},tooltip:{enabled:false},zoom:zoomOpts()},
       onClick:(e,el)=>{if(el.length)openSheet(pts[el[0].index].code)}}});
+  state.bubbleChart.config._names=list.map(s=>s.name);
+  state.bubbleChart.update("none"); // _names反映のため再描画(少数銘柄時のバッジ表示)
 }
 function trendColor(i,n){ // 変化率ランク上位=赤 → 下位=青のグラデーション
   return`hsl(${Math.round(i/Math.max(n-1,1)*220)},75%,58%)`}
 function drawTrend(pool){
   if(state.bubbleChart)state.bubbleChart.destroy();
-  const days={vr1:1,vr5:5,vr20:20}[state.period];
-  const rk={vr1:"r1",vr5:"r5",vr20:"r20"}[state.period];
+  $("#zoomReset").style.display="none";
+  const days={vr1:1,vr3:3,vr5:5,vr20:20}[state.period];
+  const rk={vr1:"r1",vr3:"r3",vr5:"r5",vr20:"r20"}[state.period];
   const top=pool.filter(s=>s.closeHist&&s.closeHist.length>days&&s[rk]!=null)
     .sort((a,b)=>b[rk]-a[rk]).slice(0,30);
   const ctx=$("#bubble");
@@ -489,7 +576,7 @@ function drawTrend(pool){
     return{label:s.name,code:s.code,
       data:h.map(c=>+(100*(c/base-1)).toFixed(1)),
       borderColor:trendColor(i,top.length),
-      borderWidth:i<3?2.5:1.2,pointRadius:0,pointHitRadius:6,
+      borderWidth:i<3?2.5:1.2,pointRadius:0,pointHitRadius:12,
       tension:.25,fill:false}});
   state.bubbleChart=new Chart(ctx,{type:"line",
     data:{labels,datasets:ds},
@@ -500,7 +587,7 @@ function drawTrend(pool){
           callback:v=>labels[v]===0?"当日":labels[v]}},
         y:{grid:{color:"rgba(142,142,147,.15)"},
           ticks:{color:"#8e8e93",font:{size:9},callback:v=>v+"%"}}},
-      plugins:{legend:{display:false},
+      plugins:{legend:{display:false},zoom:zoomOpts(),
         tooltip:{callbacks:{
           title:items=>items.length?ds[items[0].datasetIndex].label:"",
           label:it=>`${labels[it.dataIndex]===0?"当日":labels[it.dataIndex]+"日"}: ${it.parsed.y>0?"+":""}${it.parsed.y}%`}}},
@@ -552,7 +639,19 @@ function renderPerf(){
         ${x.avg5d!=null?`<span style="color:${chgColor(x.avg5d,1)}">${x.avg5d>0?"+":""}${x.avg5d}%</span>`:""}</span>
     </div>`).join("");
 }
-function renderAll(){renderHome();renderScreener();renderWatch();renderPerf()}
+function renderScores(){
+  const withS=state.data.stocks.filter(s=>s.checks);
+  if(!withS.length){
+    $("#scoreGroups").innerHTML=`<p class="empty">スコアデータがまだありません。<br>次回バッチ実行後に表示されます</p>`;return}
+  const html=[7,6,5,4,3].map(n=>{
+    const g=withS.filter(s=>s.score===n).sort((a,b)=>b.vr5-a.vr5);
+    if(!g.length)return"";
+    return`<p class="sechead">${n>=6?"⭐⭐⭐":n===5?"⭐⭐":"⭐"} スコア ${n}/7（${g.length}件）</p>
+      <div class="card listcard">${g.slice(0,50).map(s=>row(s)).join("")}</div>`;
+  }).join("");
+  $("#scoreGroups").innerHTML=html||`<p class="empty">3/7以上の候補が今日はありません</p>`;
+}
+function renderAll(){renderHome();renderScores();renderScreener();renderWatch();renderPerf()}
 
 function openSheet(code){
   const s=state.data.stocks.find(x=>x.code===code);if(!s)return;
@@ -574,13 +673,22 @@ function openSheet(code){
     `<p class="sechead" style="margin-top:16px">同業種の出遅れ候補（${s.sector}）</p>`+
     `<div class="card listcard">${lags.map(s=>row(s)).join("")}</div>`+
     `<p style="font-size:10px;color:var(--txt3);margin-top:6px">業種一致に基づく機械的抽出であり、事業内容の類似性は保証されません</p>`:"";
+  const hz=heatZone(s.heat),vz=vr5Zone(s.vr5);
   const st=[["本日",sign(s.r1),chgColor(s.r1,1)],["3日",sign(s.r3),chgColor(s.r3,1)],
     ["5日",sign(s.r5),chgColor(s.r5,1)],["20日",sign(s.r20),chgColor(s.r20,1)],
-    ["出来高×前日",fmt(s.vr1)],["×5日平均",fmt(s.vr5)],["×20日平均",fmt(s.vr20)],
+    ["出来高×前日",fmt(s.vr1)],["×3日平均",fmt(s.vr3)],
+    ["×5日平均",fmt(s.vr5),null,vz],["×20日平均",fmt(s.vr20)],
     ["時価総額",fmtMcap(s.mcap)],["売買代金",fmt(s.turnover,0)+"億"],
-    ["過熱度",s.heat,s.heat>=70?"var(--up)":null]];
-  $("#dStats").innerHTML=st.map(([l,v,c])=>
-    `<div class="stat"><p class="l">${l}</p><p class="v num" ${c?`style="color:${c}"`:""}>${v}</p></div>`).join("");
+    ["過熱度",s.heat,s.heat>=70?"var(--up)":null,hz]];
+  $("#dStats").innerHTML=st.map(([l,v,c,z])=>
+    `<div class="stat"><p class="l">${l}</p><p class="v num" ${c?`style="color:${c}"`:""}>${v}${
+      z?` <span style="font-size:9px;font-weight:700;color:${z[1]}">${z[0]}</span>`:""}</p></div>`).join("");
+  $("#dScore").innerHTML=s.checks?
+    `<p class="sechead" style="margin-top:16px">買い候補スコア ${s.score}/7</p>
+    <div class="card" style="padding:10px 14px">${s.checks.map((c,i)=>
+      `<span style="display:inline-block;width:50%;font-size:12px;padding:3px 0;color:${
+        c?"var(--txt)":"var(--txt3)"}">${c?"✅":"─"} ${CHECK_LABELS[i]}</span>`).join("")}${
+      s.solo?`<p style="font-size:11px;color:#ff9f0a;margin-top:8px;line-height:1.6">📌 業種全体は静かなのにこの銘柄だけ出来高急増 → 個別材料の可能性。下の🔍推論で確認を</p>`:""}</div>`:"";
   if(state.sparkChart)state.sparkChart.destroy();
   if(s.volHist)state.sparkChart=new Chart($("#dSpark"),{type:"bar",
     data:{labels:s.volHist.map(()=>""),datasets:[{data:s.volHist,

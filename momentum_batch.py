@@ -341,7 +341,7 @@ def build(listed, quotes, shares, earnings) -> dict:
             a["n"] += 1
         if last["turnover"] < MIN_TURNOVER_JPY:
             continue
-        v5, v20, prev_vol = sma(vols[:-1], 5), sma(vols[:-1], 20), vols[-2]
+        v3, v5, v20, prev_vol = sma(vols[:-1], 3), sma(vols[:-1], 5), sma(vols[:-1], 20), vols[-2]
         if not v5 or not v20 or not prev_vol:
             continue
         c25 = sma(closes, 25)
@@ -380,6 +380,7 @@ def build(listed, quotes, shares, earnings) -> dict:
             "market": listed.get(code, {}).get("market", ""),
             "sector": sector,
             "vr1": round(vols[-1] / prev_vol, 2),
+            "vr3": round(vols[-1] / v3, 2) if v3 else None,
             "vr5": round(vr5, 2),
             "vr20": round(vols[-1] / v20, 2),
             "r1": ret(1), "r3": ret(3), "r5": ret(5), "r20": ret(20),
@@ -402,10 +403,48 @@ def build(listed, quotes, shares, earnings) -> dict:
     out_stocks = stocks[:TOP_N_OUTPUT]
     add_laggards(out_stocks)  # タスク4(出力銘柄集合内で完結)
     sectors = summarize_sectors(sector_agg)  # タスク3
+    add_scores(out_stocks, sectors, latest_date)  # 買い候補スコア(7項目)
     perf = update_performance(stocks, latest_date)  # タスク5
     return {"updated": datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
             "dataDate": latest_date, "stocks": out_stocks,
             "sectors": sectors, "performance": perf}
+
+
+def _bdays_until(d0: str, d1: str) -> int:
+    """d0からd1までの営業日数 (土日のみ考慮、簡易)。d1<=d0は0"""
+    a = datetime.strptime(d0, "%Y-%m-%d").date()
+    b = datetime.strptime(d1, "%Y-%m-%d").date()
+    n, cur = 0, a
+    while cur < b and n < 10:
+        cur += timedelta(days=1)
+        if cur.weekday() < 5:
+            n += 1
+    return n
+
+
+def add_scores(stocks: list[dict], sectors: list[dict], data_date: str) -> None:
+    """買い候補スコア: 分析ドキュメントの8項目チェックのうち自動判定可能な7項目。
+    checksの並びはアプリ側の CHECK_LABELS と対応 (変更時は両方更新すること)"""
+    smed = {x["name"]: x["vr5med"] for x in sectors}
+    for s in stocks:
+        med = smed.get(s["sector"])
+        earn_ok = 1
+        if s.get("earnDate"):
+            earn_ok = 1 if _bdays_until(data_date, s["earnDate"]) > 3 else 0
+        checks = [
+            1 if 2.0 <= s["vr5"] <= 4.0 else 0,          # 出来高が最適ゾーン
+            1 if s["patterns"] else 0,                    # エントリーパターン検出
+            1 if not s["exit"] else 0,                    # 撤退シグナルなし
+            1 if 30 <= s["heat"] <= 60 else 0,            # 過熱度が助走段階
+            1 if s["turnover"] >= 10 else 0,              # 売買代金10億円以上
+            earn_ok,                                      # 決算3営業日以内でない
+            1 if med is not None and med >= 1.5 else 0,   # 業種全体に資金流入
+        ]
+        s["checks"] = checks
+        s["score"] = sum(checks)
+        # 個別材料ヒント: 業種は静かなのに単独で出来高急増
+        if med is not None and med < 1.2 and s["vr5"] >= 3:
+            s["solo"] = 1
 
 
 def summarize_sectors(agg: dict) -> list[dict]:

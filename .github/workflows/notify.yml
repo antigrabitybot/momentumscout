@@ -1,0 +1,28 @@
+# 買い候補スコアの定時Discord通知 (オプション機能)
+#
+# 設定方法 (このファイルの2箇所を編集):
+#   1. 通知時刻: 下の cron を変更 (UTC表記。JST-9時間。例 "30 23 * * 0-4" = 平日8:30 JST)
+#   2. 最低スコア: SCORE_MIN を 3〜7 で変更 (既定5 = 5/7以上を通知)
+# 前提: リポジトリSecretsに DISCORD_WEBHOOK_URL が登録されていること (未登録ならスキップ)
+name: score-notify
+
+on:
+  schedule:
+    - cron: "30 23 * * 0-4"   # 8:30 JST 平日朝 (前日引けの候補を場前に通知)
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Send score notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SCORE_MIN: "5"
+        run: python score_notify.py

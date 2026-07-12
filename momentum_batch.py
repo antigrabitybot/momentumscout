@@ -13,8 +13,9 @@ import json
 import os
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -29,6 +30,13 @@ MIN_TURNOVER_JPY = 100_000_000
 REQ_INTERVAL_SEC = 1.05        # レートリミット Light=60req/分 に収める
 
 
+class ApiError(RuntimeError):
+    """HTTPエラー。J-Quantsはエラー詳細をボディの message に返すため保持する"""
+    def __init__(self, code: int, url: str, body: str):
+        super().__init__(f"HTTP {code}: {url} -> {body}")
+        self.code = code
+
+
 def http_json(url: str, headers: dict | None = None, retries: int = 4) -> dict:
     for attempt in range(retries):
         try:
@@ -36,10 +44,17 @@ def http_json(url: str, headers: dict | None = None, retries: int = 4) -> dict:
             with urllib.request.urlopen(req, timeout=60) as res:
                 return json.loads(res.read().decode())
         except urllib.error.HTTPError as e:
+            try:
+                body = e.read().decode()[:300]
+            except Exception:  # noqa: BLE001
+                body = ""
             if e.code == 429 and attempt < retries - 1:
                 time.sleep(20)  # レートリミット(60req/分)の回復待ち
                 continue
-            raise
+            if e.code >= 500 and attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            raise ApiError(e.code, url, body) from e
         except (urllib.error.URLError, TimeoutError):
             if attempt == retries - 1:
                 raise
@@ -59,7 +74,7 @@ def fetch_paginated(url: str, headers: dict) -> list[dict]:
     """V2は全エンドポイントが {"data": [...], "pagination_key": ...} 形式"""
     rows, page = [], None
     while True:
-        u = url + (f"&pagination_key={page}" if page else "")
+        u = url + (f"&pagination_key={urllib.parse.quote(page)}" if page else "")
         data = http_json(u, headers)
         rows.extend(data.get("data", []))
         page = data.get("pagination_key")
@@ -86,7 +101,14 @@ def fetch_by_date_cached(endpoint: str, prefix: str,
         if cache.exists() and i > 0:
             rows = json.loads(cache.read_text())
         else:
-            rows = fetch_paginated(f"{BASE}{endpoint}?date={ds}", headers)
+            try:
+                rows = fetch_paginated(f"{BASE}{endpoint}?date={ds}", headers)
+            except ApiError as e:
+                if e.code != 400:
+                    raise
+                # 休業日等でデータが無い日付は縮退してスキップ(詳細はログで確認)
+                print(f"警告: {endpoint} {ds} をスキップ ({e})", file=sys.stderr)
+                rows = []
             if i > 0:
                 cache.write_text(json.dumps(rows, ensure_ascii=False))
             time.sleep(REQ_INTERVAL_SEC)
@@ -108,7 +130,8 @@ def fetch_earnings(headers: dict) -> dict[str, str]:
     today = datetime.now(JST).strftime("%Y-%m-%d")
     try:
         rows = fetch_paginated(f"{BASE}/equities/earnings-calendar?", headers)
-    except (urllib.error.URLError, KeyError):
+    except (ApiError, urllib.error.URLError, KeyError) as e:
+        print(f"警告: 決算予定の取得をスキップ ({e})", file=sys.stderr)
         return out  # 予定APIが落ちても本体を壊さない
     for r in rows:
         d = r.get("Date", "")  # 未定の場合は空文字
@@ -439,6 +462,9 @@ def main() -> None:
     print(f"予定判明: {len(earnings)}銘柄")
     print("日次データ取得中...")
     quotes = fetch_quotes(headers)
+    if not quotes:
+        sys.exit("株価データが1件も取得できませんでした。"
+                 "上記の警告ログ(HTTPエラーのmessage)を確認してください")
     payload = build(listed, quotes, shares, earnings)
     OUT_PATH.parent.mkdir(exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")

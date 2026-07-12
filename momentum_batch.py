@@ -362,6 +362,18 @@ def build(listed, quotes, shares, earnings) -> dict:
         def ret(n):
             return round((closes[-1] / closes[-1 - n] - 1) * 100, 1) if len(closes) > n else None
 
+        # アラート判定 (ヒューリスティック。閾値は運用しながら調整)
+        alerts = []
+        # 仕手株警戒: 小型(時価総額100億未満/不明) × 出来高5倍超 × 5日で+25%超の急騰
+        r5v = ret(5)
+        if (mcap is None or mcap < 100) and vr5 >= 5 and r5v is not None and r5v >= 25:
+            alerts.append("仕手警戒")
+        # 機関参入?: 中大型(300億以上) × 売買代金30億以上 × 5日/20日平均比とも出来高増
+        # (単日スパイクでなく持続的な出来高増を大きな資金が伴う形)
+        if (mcap is not None and mcap >= 300 and last["turnover"] >= 30e8
+                and vr5 >= 2 and vols[-1] / v20 >= 1.8):
+            alerts.append("機関参入?")
+
         rec = {
             "code": code,
             "name": listed.get(code, {}).get("name", code),
@@ -380,6 +392,8 @@ def build(listed, quotes, shares, earnings) -> dict:
             "patterns": pat,
             "exit": exit_,
             "volHist": vols[-20:],
+            "closeHist": closes[-21:],  # 推移プロット用 (20日変化率まで描画可能)
+            "alerts": alerts,
         }
         if code in earnings:
             rec["earnDate"] = earnings[code]

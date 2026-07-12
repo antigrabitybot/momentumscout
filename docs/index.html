@@ -87,6 +87,8 @@ body{color:var(--txt);min-height:100vh;
 .pill{display:inline-block;font-size:10px;font-weight:700;border-radius:6px;
   padding:1px 6px;vertical-align:1px}
 .pearn{background:rgba(255,69,58,.16);color:var(--up)}
+.pshite{background:rgba(191,90,242,.18);color:#bf5af2}
+.pinst{background:rgba(10,132,255,.16);color:#0a84ff}
 .secmap{padding:12px;margin-bottom:16px}
 .sectiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .stile{border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;
@@ -197,10 +199,14 @@ option{color:#000}
     <button data-p="vr5" class="on num">5日</button>
     <button data-p="vr20" class="num">20日</button>
   </div>
+  <div class="seg card" id="segMap" style="margin-top:8px">
+    <button data-m="bubble" class="on">バブルマップ</button>
+    <button data-m="trend">推移プロット</button>
+  </div>
   <div class="mapbox card">
     <canvas id="bubble"></canvas>
-    <span class="axl" style="top:8px;left:12px">過熱度 ↑</span>
-    <span class="axl" style="bottom:6px;right:12px">出来高変化率 →</span>
+    <span class="axl" id="axY" style="top:8px;left:12px">過熱度 ↑</span>
+    <span class="axl" id="axX" style="bottom:6px;right:12px">出来高変化率 →</span>
   </div>
   <div class="disc" id="secToggle"><span>セクター資金マップ</span><span id="secArrow">▾</span></div>
   <div class="card secmap" id="secMap" style="display:none">
@@ -333,7 +339,8 @@ const $=s=>document.querySelector(s);
 const state={data:null,period:"vr5",
   watch:JSON.parse(localStorage.getItem("ms_watch")||"[]"),
   scr:JSON.parse(localStorage.getItem("ms_scr")||'{"n":5,"th":2,"to":10,"sort":"vr","mcap":"all"}'),
-  current:null,bubbleChart:null,sparkChart:null,sheetOpen:false,sectorFilter:null};
+  current:null,bubbleChart:null,sparkChart:null,sheetOpen:false,sectorFilter:null,
+  mapMode:"bubble"};
 
 const DEMO={updated:"デモ",dataDate:"—",
   sectors:[{name:"機械",vr5med:2.4,toChg:52,n:14},{name:"鉄鋼",vr5med:2.1,toChg:38,n:8},
@@ -395,13 +402,18 @@ function earnFlag(s){
 function earnPill(s){const f=earnFlag(s);
   return f?`<span class="pill pearn">⚠${f.t}</span>`:""}
 
+function alertPills(s){
+  return(s.alerts||[]).map(a=>a==="仕手警戒"
+    ?`<span class="pill pshite">⚡仕手警戒</span>`
+    :`<span class="pill pinst">🏦${a}</span>`).join("")}
+
 function row(s,showExit){
   const isW=state.watch.includes(s.code);
   const meta=showExit&&s.exit.length?s.exit.join("・")
     :`${s.sector?s.sector+" ・ ":""}出来高 ×${fmt(s[state.period],1)} ・ 過熱度 ${s.heat}${isW?" ・ ★":""}`;
   return`<div class="row" data-code="${s.code}">
     <div class="badge num ${s.exit.length?"hot":""}">${s.code}</div>
-    <div class="rmain"><p class="rname">${s.name} ${earnPill(s)}</p>
+    <div class="rmain"><p class="rname">${s.name} ${earnPill(s)}${alertPills(s)}</p>
       <p class="rmeta num" ${showExit&&s.exit.length?'style="color:var(--up)"':""}>${meta}</p></div>
     <div class="rright"><p class="rchg num" style="color:${chgColor(s.r1,1)}">${sign(s.r1)}</p>
       <p class="rsub num">${fmtMcap(s.mcap)}</p></div>
@@ -433,20 +445,66 @@ function renderHome(){
   $("#homeList").innerHTML=top.map(s=>row(s)).join("")
     ||`<p class="empty">この業種の該当銘柄がありません</p>`;
   renderSectorMap();
-  drawBubble(top);
+  const trend=state.mapMode==="trend";
+  $("#axY").textContent=trend?"変化率% ↑":"過熱度 ↑";
+  $("#axX").style.display=trend?"none":"";
+  if(trend)drawTrend(pool);else drawBubble(top);
 }
 function drawBubble(list){
   if(state.bubbleChart)state.bubbleChart.destroy();
   const key=state.period;
   const pts=list.map(s=>({x:s[key],y:s.heat,r:Math.max(5,Math.sqrt(s.turnover)*1.1),
-    code:s.code,c:chgColor(s.r1)}));
+    code:s.code,c:chgColor(s.r1),
+    b:(s.alerts||[]).includes("仕手警戒")?"#bf5af2"
+      :(s.alerts||[]).length?"#0a84ff":null}));
   state.bubbleChart=new Chart($("#bubble"),{type:"bubble",
-    data:{datasets:[{data:pts,backgroundColor:pts.map(p=>p.c),borderWidth:0}]},
+    data:{datasets:[{data:pts,backgroundColor:pts.map(p=>p.c),
+      borderColor:pts.map(p=>p.b||"transparent"),
+      borderWidth:pts.map(p=>p.b?2:0)}]},
     options:{responsive:true,maintainAspectRatio:false,
       layout:{padding:{top:28,right:16,bottom:22,left:10}},
       scales:{x:{display:false,min:0},y:{display:false,min:0,max:100}},
       plugins:{legend:{display:false},tooltip:{enabled:false}},
       onClick:(e,el)=>{if(el.length)openSheet(pts[el[0].index].code)}}});
+}
+function trendColor(i,n){ // 変化率ランク上位=赤 → 下位=青のグラデーション
+  return`hsl(${Math.round(i/Math.max(n-1,1)*220)},75%,58%)`}
+function drawTrend(pool){
+  if(state.bubbleChart)state.bubbleChart.destroy();
+  const days={vr1:1,vr5:5,vr20:20}[state.period];
+  const rk={vr1:"r1",vr5:"r5",vr20:"r20"}[state.period];
+  const top=pool.filter(s=>s.closeHist&&s.closeHist.length>days&&s[rk]!=null)
+    .sort((a,b)=>b[rk]-a[rk]).slice(0,30);
+  const ctx=$("#bubble");
+  if(!top.length){state.bubbleChart=null;
+    const c2=ctx.getContext("2d");c2.clearRect(0,0,ctx.width,ctx.height);
+    toast("推移データがまだありません (次回バッチ実行後に表示)");
+    state.mapMode="bubble";
+    document.querySelectorAll("#segMap button").forEach(x=>
+      x.classList.toggle("on",x.dataset.m==="bubble"));
+    renderHome();return}
+  const labels=Array.from({length:days+1},(_,i)=>i-days);
+  const ds=top.map((s,i)=>{
+    const h=s.closeHist.slice(-(days+1)),base=h[0];
+    return{label:s.name,code:s.code,
+      data:h.map(c=>+(100*(c/base-1)).toFixed(1)),
+      borderColor:trendColor(i,top.length),
+      borderWidth:i<3?2.5:1.2,pointRadius:0,pointHitRadius:6,
+      tension:.25,fill:false}});
+  state.bubbleChart=new Chart(ctx,{type:"line",
+    data:{labels,datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:28,right:12,bottom:6,left:4}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:"#8e8e93",font:{size:9},
+          callback:v=>labels[v]===0?"当日":labels[v]}},
+        y:{grid:{color:"rgba(142,142,147,.15)"},
+          ticks:{color:"#8e8e93",font:{size:9},callback:v=>v+"%"}}},
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{
+          title:items=>items.length?ds[items[0].datasetIndex].label:"",
+          label:it=>`${labels[it.dataIndex]===0?"当日":labels[it.dataIndex]+"日"}: ${it.parsed.y>0?"+":""}${it.parsed.y}%`}}},
+      onClick:(e,el)=>{if(el.length)openSheet(ds[el[0].datasetIndex].code)}}});
 }
 
 function renderScreener(){
@@ -509,8 +567,8 @@ function openSheet(code){
   $("#lkKt").href=`https://kabutan.jp/stock/chart?code=${code}`;
   $("#dTags").innerHTML=
     s.exit.map(t=>`<span class="tagw">⚠ ${t}</span>`).join("")+
-    s.patterns.map(t=>`<span class="tagp">${t}</span>`).join("")||
-    `<span style="font-size:12px;color:var(--txt3)">検出パターンなし</span>`;
+    alertPills(s)+(s.patterns.map(t=>`<span class="tagp">${t}</span>`).join("")||
+    `<span style="font-size:12px;color:var(--txt3)">検出パターンなし</span>`);
   const lags=(s.laggards||[]).map(c=>state.data.stocks.find(x=>x.code===c)).filter(Boolean);
   $("#dLag").innerHTML=lags.length?
     `<p class="sechead" style="margin-top:16px">同業種の出遅れ候補（${s.sector}）</p>`+
@@ -583,6 +641,9 @@ document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>{
 document.querySelectorAll("#segPeriod button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("#segPeriod button").forEach(x=>x.classList.toggle("on",x===b));
   state.period=b.dataset.p;renderHome()});
+document.querySelectorAll("#segMap button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#segMap button").forEach(x=>x.classList.toggle("on",x===b));
+  state.mapMode=b.dataset.m;renderHome()});
 
 function saveScr(){localStorage.setItem("ms_scr",JSON.stringify(state.scr));renderScreener()}
 $("#vN").oninput=e=>{state.scr.n=+e.target.value;saveScr()};

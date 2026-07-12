@@ -490,9 +490,7 @@ function renderHome(){
 // ---- ズーム共通設定 (chartjs-plugin-zoom) ----
 function zoomOpts(){return{
   pan:{enabled:true,mode:"xy",threshold:8},
-  zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:"xy",
-    onZoomComplete:({chart})=>{
-      $("#zoomReset").style.display=chart.getZoomLevel()>1.02?"block":"none"}}}}
+  zoom:{wheel:{enabled:true},pinch:{enabled:true},mode:"xy"}}}
 $("#zoomReset").onclick=()=>{
   if(state.bubbleChart&&state.bubbleChart.resetZoom)state.bubbleChart.resetZoom();
   $("#zoomReset").style.display="none"};
@@ -502,6 +500,7 @@ const nameBadge={id:"nameBadge",
   afterDatasetsDraw(c){
     if(c.canvas.id!=="bubble")return;
     const zoomed=(c.getZoomLevel?c.getZoomLevel():1)>1.15;
+    $("#zoomReset").style.display=zoomed?"block":"none"; // 描画毎に判定(確実)
     const a=c.chartArea,items=[];
     if(c.config.type==="bubble"){
       const names=c.config._names||[];

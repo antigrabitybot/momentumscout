@@ -43,7 +43,7 @@ tests/test_infer.py        推論APIの受入テスト (敵対的テストT1〜T
 
 ### 1. J-Quants
 1. https://jpx-jquants.com/ でライトプラン以上を契約
-2. マイページからリフレッシュトークンを取得
+2. ダッシュボードから **APIキー** を発行 (V2 API。旧リフレッシュトークン方式は廃止)
 
 ### 2. GitHubリポジトリ
 1. このフォルダをそのままGitHubのプライベート…ではなく**パブリックリポジトリ**にpush
@@ -51,7 +51,7 @@ tests/test_infer.py        推論APIの受入テスト (敵対的テストT1〜T
    非公開にしたい場合はVPSでcron実行 + Basic認証配信に変更)
 2. Settings → Pages → Source: `main` / `docs` フォルダを指定
 3. Settings → Secrets and variables → Actions に登録:
-   - `JQUANTS_REFRESH_TOKEN`
+   - `JQUANTS_API_KEY` (J-Quantsダッシュボードで発行したAPIキー)
    - `DISCORD_WEBHOOK_URL` (Discordのサーバー設定 → 連携サービス → ウェブフックで発行)
 4. Actionsタブ → daily-batch → Run workflow で初回手動実行
 5. `https://<ユーザー名>.github.io/<リポジトリ名>/` をスマホで開く

@@ -30,7 +30,7 @@ jobs:
       # 別途リポジトリにコミットして永続化する。checkoutで復元済み。
       - name: Run batch
         env:
-          JQUANTS_REFRESH_TOKEN: ${{ secrets.JQUANTS_REFRESH_TOKEN }}
+          JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python momentum_batch.py
 

@@ -1,12 +1,12 @@
 """
 MomentumScout 日次バッチ v2 (F-01, F-05, F-09, F-11)
-J-Quants APIから東証全銘柄の日次OHLCV+財務を取得し、
+J-Quants API (V2) から東証全銘柄の日次OHLCV+財務を取得し、
 多期間出来高変化率・過熱度・時価総額・チャートパターン・撤退シグナルを
 計算して docs/data.json に出力する。引け後 16:50 JST 実行想定。
 
 必要な環境変数:
-  JQUANTS_REFRESH_TOKEN : J-Quantsのリフレッシュトークン
-  DISCORD_WEBHOOK_URL   : (任意) 日次サマリー/撤退警告の通知先
+  JQUANTS_API_KEY     : J-QuantsのAPIキー (V2。ダッシュボードから発行)
+  DISCORD_WEBHOOK_URL : (任意) 日次サマリー/撤退警告の通知先
 """
 
 import json
@@ -19,21 +19,27 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 JST = timezone(timedelta(hours=9))
-BASE = "https://api.jquants.com/v1"
+BASE = "https://api.jquants.com/v2"
 CACHE_DIR = Path("cache")
 OUT_PATH = Path("docs/data.json")
 QUOTE_LOOKBACK_DAYS = 70       # 出来高20日平均+余裕
 STMT_LOOKBACK_DAYS = 130       # 四半期開示を一巡させ発行済株式数を集める
 TOP_N_OUTPUT = 300
 MIN_TURNOVER_JPY = 100_000_000
+REQ_INTERVAL_SEC = 1.05        # レートリミット Light=60req/分 に収める
 
 
-def http_json(url: str, headers: dict | None = None, retries: int = 3) -> dict:
+def http_json(url: str, headers: dict | None = None, retries: int = 4) -> dict:
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, headers=headers or {})
             with urllib.request.urlopen(req, timeout=60) as res:
                 return json.loads(res.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < retries - 1:
+                time.sleep(20)  # レートリミット(60req/分)の回復待ち
+                continue
+            raise
         except (urllib.error.URLError, TimeoutError):
             if attempt == retries - 1:
                 raise
@@ -41,25 +47,25 @@ def http_json(url: str, headers: dict | None = None, retries: int = 3) -> dict:
     return {}
 
 
-def get_id_token() -> str:
-    refresh = os.environ.get("JQUANTS_REFRESH_TOKEN")
-    if not refresh:
-        sys.exit("環境変数 JQUANTS_REFRESH_TOKEN が未設定です")
-    req = urllib.request.Request(
-        f"{BASE}/token/auth_refresh?refreshtoken={refresh}", method="POST")
-    with urllib.request.urlopen(req, timeout=60) as res:
-        return json.loads(res.read().decode())["idToken"]
+def auth_headers() -> dict:
+    key = os.environ.get("JQUANTS_API_KEY")
+    if not key:
+        sys.exit("環境変数 JQUANTS_API_KEY が未設定です "
+                 "(V2 APIキー。J-Quantsダッシュボードから発行)")
+    return {"x-api-key": key}
 
 
-def fetch_paginated(url: str, headers: dict, key: str) -> list[dict]:
+def fetch_paginated(url: str, headers: dict) -> list[dict]:
+    """V2は全エンドポイントが {"data": [...], "pagination_key": ...} 形式"""
     rows, page = [], None
     while True:
         u = url + (f"&pagination_key={page}" if page else "")
         data = http_json(u, headers)
-        rows.extend(data.get(key, []))
+        rows.extend(data.get("data", []))
         page = data.get("pagination_key")
         if not page:
             return rows
+        time.sleep(REQ_INTERVAL_SEC)
 
 
 def iter_business_days(lookback: int):
@@ -70,7 +76,7 @@ def iter_business_days(lookback: int):
             yield i, d.strftime("%Y-%m-%d")
 
 
-def fetch_by_date_cached(endpoint: str, key: str, prefix: str,
+def fetch_by_date_cached(endpoint: str, prefix: str,
                          lookback: int, headers: dict) -> list[tuple[str, list]]:
     """日付ループ+ローカルキャッシュ。[(date, rows), ...] を返す"""
     CACHE_DIR.mkdir(exist_ok=True)
@@ -80,31 +86,32 @@ def fetch_by_date_cached(endpoint: str, key: str, prefix: str,
         if cache.exists() and i > 0:
             rows = json.loads(cache.read_text())
         else:
-            rows = fetch_paginated(f"{BASE}{endpoint}?date={ds}", headers, key)
+            rows = fetch_paginated(f"{BASE}{endpoint}?date={ds}", headers)
             if i > 0:
                 cache.write_text(json.dumps(rows, ensure_ascii=False))
-            time.sleep(0.25)
+            time.sleep(REQ_INTERVAL_SEC)
         out.append((ds, rows))
     return out
 
 
 def fetch_listed(headers: dict) -> dict[str, dict]:
-    rows = fetch_paginated(f"{BASE}/listed/info?", headers, "info")
-    return {r["Code"][:4]: {"name": r.get("CompanyName", ""),
-                            "market": r.get("MarketCodeName", ""),
-                            "sector": r.get("Sector33CodeName", "")} for r in rows}
+    rows = fetch_paginated(f"{BASE}/equities/master?", headers)
+    return {r["Code"][:4]: {"name": r.get("CoName", ""),
+                            "market": r.get("MktNm", ""),
+                            "sector": r.get("S33Nm", "")} for r in rows}
 
 
 def fetch_earnings(headers: dict) -> dict[str, str]:
-    """今後の決算発表予定: code -> 直近の未来発表日 'YYYY-MM-DD'"""
+    """今後の決算発表予定: code -> 直近の未来発表日 'YYYY-MM-DD'
+    (V2は3月期・9月期決算の翌営業日発表分を返す)"""
     out: dict[str, str] = {}
     today = datetime.now(JST).strftime("%Y-%m-%d")
     try:
-        rows = fetch_paginated(f"{BASE}/fins/announcement?", headers, "announcement")
+        rows = fetch_paginated(f"{BASE}/equities/earnings-calendar?", headers)
     except (urllib.error.URLError, KeyError):
         return out  # 予定APIが落ちても本体を壊さない
     for r in rows:
-        d = r.get("Date", "")
+        d = r.get("Date", "")  # 未定の場合は空文字
         code = (r.get("Code") or "")[:4]
         if code and d >= today:
             if code not in out or d < out[code]:
@@ -114,19 +121,19 @@ def fetch_earnings(headers: dict) -> dict[str, str]:
 
 def fetch_quotes(headers: dict) -> dict[str, list[dict]]:
     by_code: dict[str, list[dict]] = {}
-    for _, rows in fetch_by_date_cached("/prices/daily_quotes", "daily_quotes",
-                                        "q", QUOTE_LOOKBACK_DAYS, headers):
+    for _, rows in fetch_by_date_cached("/equities/bars/daily",
+                                        "q2", QUOTE_LOOKBACK_DAYS, headers):
         for r in rows:
-            if r.get("Close") is None or r.get("Volume") is None:
+            if r.get("C") is None or r.get("Vo") is None:
                 continue
             by_code.setdefault(r["Code"][:4], []).append({
                 "date": r["Date"],
-                "open": float(r.get("Open") or r["Close"]),
-                "high": float(r.get("High") or r["Close"]),
-                "low": float(r.get("Low") or r["Close"]),
-                "close": float(r["Close"]),
-                "volume": float(r["Volume"]),
-                "turnover": float(r.get("TurnoverValue") or 0),
+                "open": float(r.get("O") or r["C"]),
+                "high": float(r.get("H") or r["C"]),
+                "low": float(r.get("L") or r["C"]),
+                "close": float(r["C"]),
+                "volume": float(r["Vo"]),
+                "turnover": float(r.get("Va") or 0),
             })
     return by_code
 
@@ -134,14 +141,13 @@ def fetch_quotes(headers: dict) -> dict[str, list[dict]]:
 def fetch_shares(headers: dict) -> dict[str, float]:
     """発行済株式数(自己株含む): 四半期開示を遡って最新値を採用"""
     shares: dict[str, float] = {}
-    field = "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock"
-    for _, rows in fetch_by_date_cached("/fins/statements", "statements",
-                                        "s", STMT_LOOKBACK_DAYS, headers):
+    for _, rows in fetch_by_date_cached("/fins/summary",
+                                        "s2", STMT_LOOKBACK_DAYS, headers):
         for r in rows:  # 日付昇順ループなので後の開示で上書き=最新が残る
-            v = r.get(field)
+            v = r.get("ShOutFY")  # 期末発行済株式数
             if v:
                 try:
-                    shares[r["LocalCode"][:4]] = float(v)
+                    shares[r["Code"][:4]] = float(v)
                 except (ValueError, TypeError):
                     pass
     return shares
@@ -421,7 +427,7 @@ def notify_discord(payload: dict) -> None:
 
 
 def main() -> None:
-    headers = {"Authorization": f"Bearer {get_id_token()}"}
+    headers = auth_headers()
     print("銘柄マスタ取得中...")
     listed = fetch_listed(headers)
     print(f"{len(listed)}銘柄")

@@ -57,8 +57,13 @@ body{color:var(--txt);min-height:100vh;
 .seg button.on{background:var(--glass2);color:var(--txt);font-weight:600;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 1px 4px rgba(0,0,0,.2)}
 
-.mapbox{position:relative;height:230px;margin-bottom:18px;overflow:hidden}
+.mapbox{position:relative;height:230px;margin-bottom:18px;overflow:hidden;transition:none}
+.mapbox.full{position:fixed;inset:0;height:100dvh;z-index:60;margin:0;
+  border-radius:0;padding-top:env(safe-area-inset-top)}
 .axl{position:absolute;font-size:11px;color:var(--txt3);pointer-events:none}
+.mapbtn{position:absolute;z-index:3;background:var(--glass2);border:1px solid var(--line);
+  border-radius:8px;color:var(--txt);font-size:11px;padding:4px 10px;
+  font-family:inherit;cursor:pointer}
 
 .listcard{padding:2px 14px;margin-bottom:16px}
 .row{display:flex;align-items:center;gap:12px;padding:12px 0;min-height:44px;
@@ -206,13 +211,13 @@ option{color:#000}
     <button data-m="bubble" class="on">バブルマップ</button>
     <button data-m="trend">推移プロット</button>
   </div>
-  <div class="mapbox card">
+  <div class="mapbox card" id="mapBox">
     <canvas id="bubble"></canvas>
     <span class="axl" id="axY" style="top:8px;left:12px">過熱度 ↑</span>
     <span class="axl" id="axX" style="bottom:6px;right:12px">出来高変化率 →</span>
-    <button id="zoomReset" style="display:none;position:absolute;top:6px;right:8px;z-index:3;
-      background:var(--glass2);border:1px solid var(--line);border-radius:8px;color:var(--txt);
-      font-size:11px;padding:4px 10px;font-family:inherit;cursor:pointer">⟲ 元に戻す</button>
+    <button id="mapExpand" class="mapbtn" style="top:6px;right:8px">⛶ 全画面</button>
+    <button id="mapCollapse" class="mapbtn" style="top:6px;right:8px;display:none">✕ 戻る</button>
+    <button id="zoomReset" class="mapbtn" style="display:none;top:6px;right:84px">⟲ 元に戻す</button>
   </div>
   <p style="font-size:10px;color:var(--txt3);margin:-6px 2px 10px">ピンチ/ホイールで拡大、ドラッグで移動。拡大すると銘柄名が表示されます</p>
   <div class="disc" id="secToggle"><span>セクター資金マップ</span><span id="secArrow">▾</span></div>
@@ -366,7 +371,7 @@ const state={data:null,period:"vr5",
   watch:JSON.parse(localStorage.getItem("ms_watch")||"[]"),
   scr:JSON.parse(localStorage.getItem("ms_scr")||'{"n":5,"th":2,"to":10,"sort":"vr","mcap":"all"}'),
   current:null,bubbleChart:null,sparkChart:null,sheetOpen:false,sectorFilter:null,
-  mapMode:"bubble"};
+  mapMode:"bubble",mapFull:false};
 
 const DEMO={updated:"デモ",dataDate:"—",
   sectors:[{name:"機械",vr5med:2.4,toChg:52,n:14},{name:"鉄鋼",vr5med:2.1,toChg:38,n:8},
@@ -494,6 +499,30 @@ function zoomOpts(){return{
 $("#zoomReset").onclick=()=>{
   if(state.bubbleChart&&state.bubbleChart.resetZoom)state.bubbleChart.resetZoom();
   $("#zoomReset").style.display="none"};
+
+// ---- 全画面表示 ----
+function openMapFull(){
+  if(state.mapFull)return;
+  state.mapFull=true;
+  $("#mapBox").classList.add("full");
+  $("#mapExpand").style.display="none";
+  $("#mapCollapse").style.display="block";
+  document.body.style.overflow="hidden";
+  history.pushState({mapFull:true},"");
+  setTimeout(()=>state.bubbleChart&&state.bubbleChart.resize(),50);
+}
+function closeMapFull(viaHistory){
+  if(!state.mapFull)return;
+  state.mapFull=false;
+  $("#mapBox").classList.remove("full");
+  $("#mapExpand").style.display="block";
+  $("#mapCollapse").style.display="none";
+  document.body.style.overflow="";
+  if(!viaHistory)history.back();
+  setTimeout(()=>state.bubbleChart&&state.bubbleChart.resize(),50);
+}
+$("#mapExpand").onclick=openMapFull;
+$("#mapCollapse").onclick=()=>closeMapFull();
 
 // ---- ズーム時に銘柄名バッジをcanvas描画するプラグイン ----
 const nameBadge={id:"nameBadge",
@@ -704,7 +733,9 @@ function closeSheet(viaHistory){
   if(state.sheetOpen&&!viaHistory)history.back();
   state.sheetOpen=false;
 }
-window.addEventListener("popstate",()=>{if(state.sheetOpen)closeSheet(true)});
+window.addEventListener("popstate",()=>{
+  if(state.mapFull)closeMapFull(true);
+  else if(state.sheetOpen)closeSheet(true)});
 $("#sheetBg").onclick=()=>closeSheet();
 $("#sheetClose").onclick=()=>closeSheet();
 (()=>{ // 下スワイプで閉じる

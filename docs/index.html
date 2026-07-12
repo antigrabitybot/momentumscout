@@ -61,9 +61,34 @@ body{color:var(--txt);min-height:100vh;
 .mapbox.full{position:fixed;inset:0;height:100dvh;z-index:60;margin:0;
   border-radius:0;padding-top:env(safe-area-inset-top)}
 .axl{position:absolute;font-size:11px;color:var(--txt3);pointer-events:none}
-.mapbtn{position:absolute;z-index:3;background:var(--glass2);border:1px solid var(--line);
+.mapbtn{position:absolute;z-index:3;background:var(--glass2);border:1px solid var(--stroke2);
   border-radius:8px;color:var(--txt);font-size:11px;padding:4px 10px;
   font-family:inherit;cursor:pointer}
+
+.manual{position:fixed;inset:0;z-index:70;background:var(--bg);display:none;
+  overflow-y:auto;-webkit-overflow-scrolling:touch}
+.manual.open{display:block}
+.manual-head{position:sticky;top:0;z-index:2;background:var(--glass);backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);border-bottom:.5px solid var(--stroke2);
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;
+  align-items:center;gap:10px}
+.manual-head h1{font-size:17px;flex:1}
+.manual-body{padding:16px 16px calc(60px + env(safe-area-inset-bottom))}
+.manual-body h2{font-size:17px;margin:26px 0 8px;color:var(--txt)}
+.manual-body h3{font-size:14px;margin:18px 0 6px;color:var(--txt)}
+.manual-body p{font-size:13px;line-height:1.85;color:var(--txt2);margin:6px 0}
+.manual-body ul{margin:6px 0 6px 18px;padding:0}
+.manual-body li{font-size:13px;line-height:1.8;color:var(--txt2)}
+.mtwrap{overflow-x:auto;margin:8px 0;-webkit-overflow-scrolling:touch}
+.manual-body table{width:100%;min-width:420px;border-collapse:collapse;font-size:12px}
+.manual-body th,.manual-body td{padding:6px 9px;border-bottom:.5px solid var(--stroke2);
+  text-align:left;white-space:nowrap}
+.manual-body th{color:var(--txt3);font-weight:600}
+.manual-body .tip{background:var(--glass2);border-radius:10px;padding:10px 12px;
+  font-size:12px;color:var(--txt2);margin:10px 0;line-height:1.7}
+.manual-body code{font-family:inherit;background:var(--glass2);padding:1px 5px;
+  border-radius:4px;font-size:.95em}
+.manual-body hr{border:0;border-top:.5px solid var(--stroke2);margin:20px 0}
 
 .listcard{padding:2px 14px;margin-bottom:16px}
 .row{display:flex;align-items:center;gap:12px;padding:12px 0;min-height:44px;
@@ -282,6 +307,7 @@ option{color:#000}
 
 <main id="pg-settings" class="page">
   <h1 class="ltitle">設定</h1>
+  <button class="btn" id="openManual" style="margin-bottom:14px">📖 取扱説明書</button>
   <div class="ctl card">
     <label>通知</label>
     <p style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px">
@@ -292,11 +318,29 @@ option{color:#000}
       <button class="btn" id="testHook" style="flex:1">テスト送信</button>
       <button class="btn" id="askNotif" style="flex:1">端末通知を許可</button>
     </div>
-    <p style="font-size:12px;color:var(--txt2);line-height:1.7;margin-top:12px">
-      <b>買い候補スコアの定時通知</b>（既定: 平日8:30に5/7以上を通知）:
-      GitHubリポジトリの <span class="num">.github/workflows/notify.yml</span> を編集して
-      時刻（cron・UTC表記）と最低スコア（SCORE_MIN）を変更できます。
-      アプリからは変更できません（GitHub Actionsの仕様）。</p>
+  </div>
+  <div class="ctl card">
+    <label>買い候補スコアの定時通知</label>
+    <p style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px">
+      毎営業日、指定した時刻にスコアN/7以上の銘柄をDiscordへ送信します
+      （GitHub Actions <span class="num">notify.yml</span> のcronを書き換えます）。</p>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="time" id="notifyTime" value="08:30" style="flex:1">
+      <select id="notifyScore" style="flex:1">
+        <option value="7">7/7以上</option><option value="6">6/7以上</option>
+        <option value="5" selected>5/7以上</option><option value="4">4/7以上</option>
+        <option value="3">3/7以上</option>
+      </select>
+    </div>
+    <input type="password" id="ghToken" placeholder="GitHub Personal Access Token"
+      style="margin-top:10px" autocomplete="off">
+    <p style="font-size:11px;color:var(--txt3);line-height:1.6;margin-top:6px">
+      このリポジトリのみ・Contents: Read and write 権限の
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank"
+        rel="noopener" style="color:var(--accent)">fine-grained PAT</a> を発行して貼り付けてください。
+      端末内のみに保存され、保存操作時にGitHubへ直接送信されます（当サーバーは経由しません）。</p>
+    <button class="btn pri" id="saveNotify" style="margin-top:10px">この時刻をGitHubに反映</button>
+    <p id="notifyStatus" style="font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.6"></p>
   </div>
   <div class="ctl card">
     <label>推論API（出来高増加の理由）</label>
@@ -324,6 +368,138 @@ option{color:#000}
     <button class="btn dgr" id="clearWatch">すべて削除</button>
   </div>
 </main>
+
+<div class="manual" id="manual">
+  <div class="manual-head">
+    <h1>📖 取扱説明書</h1>
+    <button class="close" id="manualClose" aria-label="閉じる">✕</button>
+  </div>
+  <div class="manual-body">
+    <p class="tip"><b>データ更新タイミング</b>: 毎営業日 16:50 JST に自動バッチが実行され、その日の引け後データが反映されます。</p>
+
+    <h2>画面構成</h2>
+    <p>画面下部のタブバーで5つの画面を切り替えます。<br>
+      <span class="num">◉ ホーム ｜ ◎ 候補 ｜ ⚲ 絞込 ｜ ★ ウォッチ ｜ ⚙ 設定</span></p>
+
+    <h2>① ホーム画面</h2>
+    <p><b>期間セグメント</b>（前日比/3日/5日/20日）はアプリ全体の「出来高変化率の基準」を切り替えます。</p>
+    <div class="mtwrap"><table><tr><th>ボタン</th><th>指標</th><th>意味</th></tr>
+      <tr><td>前日比</td><td class="num">vr1</td><td>当日出来高 ÷ 前日出来高</td></tr>
+      <tr><td>3日</td><td class="num">vr3</td><td>当日出来高 ÷ 過去3日平均出来高</td></tr>
+      <tr><td>5日(既定)</td><td class="num">vr5</td><td>当日出来高 ÷ 過去5日平均出来高</td></tr>
+      <tr><td>20日</td><td class="num">vr20</td><td>当日出来高 ÷ 過去20日平均出来高</td></tr>
+    </table></div>
+    <p class="tip">なぜ5日が既定か: 1日だけの突発的な出来高スパイクを除外し、数日間持続している需要の変化を捉えるため。短期投資では最も信頼性が高い指標です。</p>
+    <p>バッチ側は全銘柄を <span class="num">vr5</span> 降順で並べ上位300銘柄を保存。アプリ側はこの300銘柄から選択中の期間で再ソートして上位30件を表示します。「5日」選択時が最もデータ量・精度が高くなります。</p>
+
+    <h3>バブルマップの見方</h3>
+    <div class="mtwrap"><table><tr><th>要素</th><th>意味</th></tr>
+      <tr><td>横軸→</td><td>選択期間の出来高変化率(右ほど急増)</td></tr>
+      <tr><td>縦軸↑</td><td>過熱度スコア(上ほど過熱)</td></tr>
+      <tr><td>大きさ</td><td>売買代金(大きいほど活発)</td></tr>
+      <tr><td>色(赤/青)</td><td>当日株価が上昇/下落</td></tr>
+      <tr><td>枠(紫/青)</td><td>⚡仕手警戒 / 🏦機関参入?</td></tr>
+    </table></div>
+    <p>右上にあるバブル＝出来高が増え、かつ過熱している銘柄です。短期投資のターゲットは右上寄り・大きめ・赤いバブル。</p>
+    <p><b>ズーム操作</b>: ピンチ/ホイールで拡大、ドラッグで移動、拡大時は銘柄名バッジ表示、「⟲元に戻す」でリセット、「⛶全画面」で画面いっぱいに表示。</p>
+
+    <h3>推移プロットの見方</h3>
+    <p>選択期間の日数分（前日比=1日〜20日=20日）の株価騰落率の推移を折れ線で描画。横軸=日数(0=当日)、縦軸=基準日からの累積騰落率(%)。各期間のリターン上位30件をリターン順に赤→青グラデーションで表示(1〜3位は太線)。タップで詳細シートを開けます。</p>
+    <p class="tip">バブルマップで「今日の瞬間的な状態」を、推移プロットで「数日間の動きの質」を確認するのが効果的です。</p>
+
+    <h3>セクター資金マップ</h3>
+    <p>「セクター資金マップ▾」で東証33業種を <span class="num">vr5中央値</span> 降順に並べたヒートマップを展開。濃い赤ほど業種全体に資金流入。🔥は vr5中央値≥1.5。タップでその業種に絞り込み(再タップで解除)。</p>
+
+    <h2>② 候補画面</h2>
+    <p>毎日まず最初に見る画面。7項目の自動チェックで算出した「買い候補スコア」の高い順にグループ表示（同スコア内は<span class="num">vr5</span>高い順）。2点以下は非表示。</p>
+    <div class="mtwrap"><table><tr><th>#</th><th>項目</th><th>判定条件</th></tr>
+      <tr><td>1</td><td>出来高2〜4×</td><td class="num">2.0≤vr5≤4.0</td></tr>
+      <tr><td>2</td><td>エントリーパターン</td><td>20日高値ブレイク/窓開け上昇/包み陽線のいずれか</td></tr>
+      <tr><td>3</td><td>撤退シグナルなし</td><td>撤退シグナルが0件</td></tr>
+      <tr><td>4</td><td>過熱度30〜60</td><td class="num">30≤heat≤60</td></tr>
+      <tr><td>5</td><td>売買代金10億+</td><td class="num">turnover≥10億円</td></tr>
+      <tr><td>6</td><td>決算近接なし</td><td>決算まで3営業日超(または予定なし)</td></tr>
+      <tr><td>7</td><td>業種に資金流入</td><td>所属業種のvr5中央値≥1.5</td></tr>
+    </table></div>
+    <p class="tip">スコア5/7以上が朝8:30 Discord定時通知の既定対象。7/7・6/7はレアですが最も期待値が高い候補です。</p>
+
+    <h2>③ 絞込画面(スクリーナー)</h2>
+    <p>自分で条件を設定して絞り込む画面。設定は自動保存されます。並び順は基準期間・本日騰落率・過熱度・売買代金・時価総額から選択(最大100件表示)。</p>
+    <div class="mtwrap"><table><tr><th>設定</th><th>推奨値</th></tr>
+      <tr><td>基準期間</td><td>5日</td></tr><tr><td>出来高倍率以上</td><td>2.0×</td></tr>
+      <tr><td>売買代金以上</td><td>10億円</td></tr><tr><td>時価総額</td><td>小型 or 中型</td></tr>
+    </table></div>
+
+    <h2>④ ウォッチ画面</h2>
+    <p>★登録銘柄の一覧。撤退シグナルが出ている銘柄を最上段「⚠撤退シグナル」に赤く集約。下段「監視中」はシグナルなし銘柄がウォッチ登録順。アプリ起動時、ウォッチ銘柄の撤退シグナルをDiscordへ通知(同日1回)。</p>
+
+    <h2>⑤ 設定画面</h2>
+    <p><b>通知</b>: Webhook登録でウォッチ銘柄の撤退警告を起動時に送信(同日1回)。買い候補スコアの定時通知は本画面上部で時刻・スコアを設定しGitHubへ反映できます。</p>
+    <p><b>推論API</b>: VercelのAPI URLを登録すると銘柄詳細の🔍推論ボタンが有効に。1回15〜25円(同日同銘柄は再課金なし)。</p>
+    <p><b>シグナル成績</b>: 直近90日の発生履歴から勝率・平均リターンを表示(発生3回以上のみ)。撤退シグナルは「翌日下落率」、パターンは「翌日上昇率」が勝率。avg5dは5営業日後平均リターン。</p>
+
+    <h2>銘柄詳細シート</h2>
+    <p>リストをタップすると開きます。✕・背景タップ・下スワイプ・端末の戻るで閉じられます。</p>
+    <p><b>ヘッダー</b>: ⚠決算バッジ(本日/明日/N営業日後)、⚡仕手警戒(時価総額100億未満&vr5≥5&5日騰落率≥+25%)、🏦機関参入?(時価総額300億+&代金30億+&vr5≥2&vr20≥1.8)、📌個別材料?(業種vr5中央値<1.2なのに個別vr5≥3)、◎n/7(スコア5以上で表示)。</p>
+    <p><b>タグ</b>: 赤=撤退シグナル、緑=エントリーパターン。<b>出来高バー</b>: 直近20営業日、当日のみ騰落色で着色。</p>
+    <div class="mtwrap"><table><tr><th>統計項目</th><th>補足</th></tr>
+      <tr><td>本日/3日/5日/20日騰落率</td><td>—</td></tr>
+      <tr><td>出来高×前日/3日/5日/20日平均</td><td>×5日平均のみ 狙い目/強い/急騰⚠ ラベル</td></tr>
+      <tr><td>時価総額・売買代金</td><td>—</td></tr>
+      <tr><td>過熱度</td><td>初動/助走/警戒/撤退圏 ラベル</td></tr>
+    </table></div>
+    <p><b>買い候補スコア内訳</b>: 7項目の✅/─表示。📌個別材料の場合は「業種は静かなのに単独急増→🔍推論で確認を」の案内が出ます。</p>
+    <p><b>外部リンク</b>: Google Finance / TradingView / 株探。<b>🔍推論</b>: TDnet直近7日・X直近48時間・Web検索を調査し、確信度(高/中/低)+出典リンク+注意事項を表示。同日同銘柄は再課金なし。</p>
+    <p><b>同業種の出遅れ候補</b>: vr5上位50銘柄限定、同業種でvr5<1.5・時価総額0.2〜5倍の銘柄を最大5件(売買代金順)。業種一致のみの機械的抽出で事業内容の類似性は保証されません。</p>
+
+    <h2>指標・ロジック詳細</h2>
+    <h3>過熱度スコア(heat: 0〜100)</h3>
+    <p class="num">heat = vr5成分(40点) + 25日線乖離成分(35点) + RSI成分(25点)</p>
+    <ul>
+      <li>vr5成分 = min(vr5,6)/6×40</li>
+      <li>乖離成分 = min(max(dev25,0),30)/30×35 (マイナス乖離は0点)</li>
+      <li>RSI成分 = max(RSI14-50,0)/50×25 (50以下は0点)</li>
+    </ul>
+    <div class="mtwrap"><table><tr><th>過熱度</th><th>ラベル</th><th>解釈</th></tr>
+      <tr><td>0〜29</td><td>初動</td><td>注目が始まった段階</td></tr>
+      <tr><td>30〜59</td><td>助走</td><td>新規エントリーの狙い目</td></tr>
+      <tr><td>60〜69</td><td>警戒</td><td>利確の準備を</td></tr>
+      <tr><td>70〜100</td><td>撤退圏</td><td>過熱度70+撤退シグナル発動</td></tr>
+    </table></div>
+
+    <h3>エントリーパターン</h3>
+    <div class="mtwrap"><table><tr><th>パターン</th><th>判定条件</th></tr>
+      <tr><td>20日高値ブレイク</td><td>当日終値 > 過去20日の最高値</td></tr>
+      <tr><td>窓開け上昇</td><td>当日始値 > 前日高値 かつ 陽線</td></tr>
+      <tr><td>包み陽線</td><td>前日陰線 かつ 当日陽線が前日を完全に包む</td></tr>
+    </table></div>
+
+    <h3>撤退シグナル</h3>
+    <div class="mtwrap"><table><tr><th>シグナル</th><th>判定条件</th></tr>
+      <tr><td>過熱度70+</td><td>過熱度スコア≥70(最優先)</td></tr>
+      <tr><td>長い上ヒゲ+出来高急増</td><td>上ヒゲ>実体×2 かつ ヒゲ比率>50% かつ 出来高>5日平均×2</td></tr>
+      <tr><td>出来高最大の陰線</td><td>当日出来高が直近20日で最大 かつ 陰線</td></tr>
+      <tr><td>包み陰線</td><td>前日陽線 かつ 当日陰線が前日を完全に包む</td></tr>
+      <tr><td>出来高急減+失速</td><td>直近3日平均<5日平均の50% かつ 株価下落</td></tr>
+      <tr><td>RSI 80+</td><td>RSI14≥80</td></tr>
+      <tr><td>25日線乖離+25%超</td><td>25日移動平均から+25%以上乖離</td></tr>
+    </table></div>
+
+    <h2>毎日の使い方フロー</h2>
+    <p><b>朝(8:30 JST)</b>: Discord通知確認→「候補」タブで7点・6点を優先確認→気になる銘柄をタップしアラート/スコア内訳/🔍推論を確認→外部チャートで最終確認。</p>
+    <p><b>場中・引け後</b>: エントリー銘柄は★ウォッチ登録で管理。</p>
+    <p><b>毎日17時頃</b>: 「ウォッチ」タブで撤退シグナル集約を確認、Discord日次サマリーを確認。</p>
+    <div class="mtwrap"><table><tr><th>緊急度</th><th>シグナル</th><th>意味</th></tr>
+      <tr><td>🔴高</td><td>長い上ヒゲ+出来高急増</td><td>買い圧力の吐き出し、天井のサイン</td></tr>
+      <tr><td>🔴高</td><td>出来高最大の陰線</td><td>大口投資家の売り抜けの可能性</td></tr>
+      <tr><td>🟡中</td><td>過熱度70+/RSI80+</td><td>買われ過ぎ、平均回帰リスク</td></tr>
+      <tr><td>🟡中</td><td>包み陰線</td><td>トレンド転換サイン</td></tr>
+      <tr><td>🟢低</td><td>出来高急減+失速</td><td>市場の関心が薄れモメンタム消滅</td></tr>
+    </table></div>
+    <hr>
+    <p style="text-align:center;color:var(--txt3);font-size:11px">本ツールは情報整理の補助であり、投資判断はすべて自己責任です。</p>
+  </div>
+</div>
 
 <div class="sheet-bg" id="sheetBg"></div>
 <section class="sheet" id="sheet">
@@ -371,7 +547,7 @@ const state={data:null,period:"vr5",
   watch:JSON.parse(localStorage.getItem("ms_watch")||"[]"),
   scr:JSON.parse(localStorage.getItem("ms_scr")||'{"n":5,"th":2,"to":10,"sort":"vr","mcap":"all"}'),
   current:null,bubbleChart:null,sparkChart:null,sheetOpen:false,sectorFilter:null,
-  mapMode:"bubble",mapFull:false};
+  mapMode:"bubble",mapFull:false,manualOpen:false};
 
 const DEMO={updated:"デモ",dataDate:"—",
   sectors:[{name:"機械",vr5med:2.4,toChg:52,n:14},{name:"鉄鋼",vr5med:2.1,toChg:38,n:8},
@@ -734,8 +910,103 @@ function closeSheet(viaHistory){
   state.sheetOpen=false;
 }
 window.addEventListener("popstate",()=>{
-  if(state.mapFull)closeMapFull(true);
+  if(state.manualOpen)closeManual(true);
+  else if(state.mapFull)closeMapFull(true);
   else if(state.sheetOpen)closeSheet(true)});
+
+// ---- 取扱説明書 ----
+function openManual(){
+  if(state.manualOpen)return;
+  state.manualOpen=true;
+  $("#manual").classList.add("open");
+  document.body.style.overflow="hidden";
+  history.pushState({manual:true},"");
+}
+function closeManual(viaHistory){
+  if(!state.manualOpen)return;
+  state.manualOpen=false;
+  $("#manual").classList.remove("open");
+  document.body.style.overflow="";
+  if(!viaHistory)history.back();
+}
+$("#openManual").onclick=openManual;
+$("#manualClose").onclick=()=>closeManual();
+
+// ---- 買い候補スコア定時通知の時刻設定 (GitHub Contents APIでnotify.ymlを直接編集) ----
+function repoInfo(){
+  const owner=location.hostname.split(".")[0];
+  const repo=(location.pathname.split("/").filter(Boolean)[0])||"";
+  return{owner,repo,ok:location.hostname.endsWith("github.io")&&!!repo};
+}
+function b64EncodeUtf8(str){
+  const bytes=new TextEncoder().encode(str);let bin="";
+  bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin);
+}
+function b64DecodeUtf8(b64){
+  const bin=atob(b64.replace(/\n/g,""));
+  const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+// JST HH:MM → UTC cron (平日Mon-Fri JSTになるようdow境界をhour=9で切替。既定8:30の実装と同じ考え方)
+function jstTimeToCron(hhmm){
+  const[h,m]=hhmm.split(":").map(Number);
+  return h>=9?{min:m,hour:h-9,dow:"1-5"}:{min:m,hour:h+15,dow:"0-4"};
+}
+async function loadNotifyPrefill(){
+  const{owner,repo,ok}=repoInfo();
+  if(!ok)return;
+  try{
+    const res=await fetch(
+      `https://raw.githubusercontent.com/${owner}/${repo}/main/.github/workflows/notify.yml`,
+      {cache:"no-store"});
+    if(!res.ok)return;
+    const text=await res.text();
+    const cm=text.match(/cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+[\d,-]+"/);
+    const sm=text.match(/SCORE_MIN:\s*"(\d+)"/);
+    if(cm){
+      const min=+cm[1],hour=+cm[2];
+      const total=(hour*60+min+540)%1440; // UTC→JST (+9h)
+      $("#notifyTime").value=
+        `${String(Math.floor(total/60)).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+    }
+    if(sm)$("#notifyScore").value=sm[1];
+  }catch(e){/* 取得失敗時は入力欄の初期値のまま */}
+}
+async function saveNotifySchedule(){
+  const{owner,repo,ok}=repoInfo();
+  const status=$("#notifyStatus"),token=$("#ghToken").value.trim(),time=$("#notifyTime").value;
+  if(!ok){status.textContent="GitHub Pages上でのみ利用できます";return}
+  if(!token){status.textContent="GitHub Personal Access Tokenを入力してください";return}
+  if(!time){status.textContent="時刻を入力してください";return}
+  const score=$("#notifyScore").value;
+  const{min,hour,dow}=jstTimeToCron(time);
+  status.textContent="GitHubに反映中…";
+  const api=`https://api.github.com/repos/${owner}/${repo}/contents/.github/workflows/notify.yml`;
+  try{
+    const getRes=await fetch(api,
+      {headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json"}});
+    if(!getRes.ok){
+      status.textContent=getRes.status===401?"トークンが無効です":
+        getRes.status===404?"notify.ymlが見つかりません":`取得エラー (${getRes.status})`;
+      return}
+    const meta=await getRes.json();
+    let content=b64DecodeUtf8(meta.content);
+    content=content.replace(/cron:\s*"[^"]+"/,`cron: "${min} ${hour} * * ${dow}"`);
+    content=content.replace(/SCORE_MIN:\s*"[^"]+"/,`SCORE_MIN: "${score}"`);
+    const putRes=await fetch(api,{method:"PUT",
+      headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json",
+        "Content-Type":"application/json"},
+      body:JSON.stringify({
+        message:`chore: 通知時刻を${time} JST・スコア${score}/7に変更`,
+        content:b64EncodeUtf8(content),sha:meta.sha})});
+    if(!putRes.ok){
+      const j=await putRes.json().catch(()=>({}));
+      status.textContent=`反映失敗 (${putRes.status}) ${j.message||""}`;return}
+    status.textContent=`反映しました。次回の平日${time}(JST)から適用されます`;
+  }catch(e){status.textContent="通信エラー: "+e.message}
+}
+$("#saveNotify").onclick=saveNotifySchedule;
+loadNotifyPrefill();
 $("#sheetBg").onclick=()=>closeSheet();
 $("#sheetClose").onclick=()=>closeSheet();
 (()=>{ // 下スワイプで閉じる

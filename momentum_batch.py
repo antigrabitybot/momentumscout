@@ -370,7 +370,7 @@ def build(listed, quotes, shares, earnings) -> dict:
             "vr1": round(vols[-1] / prev_vol, 2),
             "vr5": round(vr5, 2),
             "vr20": round(vols[-1] / v20, 2),
-            "r1": ret(1), "r5": ret(5), "r20": ret(20),
+            "r1": ret(1), "r3": ret(3), "r5": ret(5), "r20": ret(20),
             "turnover": round(last["turnover"] / 1e8, 1),
             "mcap": mcap,
             "close": closes[-1],

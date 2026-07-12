@@ -411,7 +411,7 @@ function secColor(v){ // vr5中央値→赤の濃淡
   const t=Math.min(Math.max((v-0.8)/1.6,0),1);
   return`rgba(255,69,58,${(0.08+t*0.42).toFixed(2)})`}
 function renderSectorMap(){
-  const secs=(state.data.sectors||[]).slice(0,12);
+  const secs=state.data.sectors||[]; // 全業種を表示 (バッチ側でvr5中央値の降順)
   if(!secs.length){$("#secToggle").style.display="none";return}
   $("#secTiles").innerHTML=secs.map(s=>`
     <div class="stile ${state.sectorFilter===s.name?"on":""}" data-sec="${s.name}"
@@ -516,8 +516,8 @@ function openSheet(code){
     `<p class="sechead" style="margin-top:16px">同業種の出遅れ候補（${s.sector}）</p>`+
     `<div class="card listcard">${lags.map(s=>row(s)).join("")}</div>`+
     `<p style="font-size:10px;color:var(--txt3);margin-top:6px">業種一致に基づく機械的抽出であり、事業内容の類似性は保証されません</p>`:"";
-  const st=[["本日",sign(s.r1),chgColor(s.r1,1)],["5日",sign(s.r5),chgColor(s.r5,1)],
-    ["20日",sign(s.r20),chgColor(s.r20,1)],
+  const st=[["本日",sign(s.r1),chgColor(s.r1,1)],["3日",sign(s.r3),chgColor(s.r3,1)],
+    ["5日",sign(s.r5),chgColor(s.r5,1)],["20日",sign(s.r20),chgColor(s.r20,1)],
     ["出来高×前日",fmt(s.vr1)],["×5日平均",fmt(s.vr5)],["×20日平均",fmt(s.vr20)],
     ["時価総額",fmtMcap(s.mcap)],["売買代金",fmt(s.turnover,0)+"億"],
     ["過熱度",s.heat,s.heat>=70?"var(--up)":null]];

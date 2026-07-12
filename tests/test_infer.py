@@ -32,13 +32,13 @@ adversarial = pytest.mark.skipif(
 SPIKE = "2026-07-10"  # 金曜想定の急増日
 
 
-def ev(ir=None, x=None, code="9899", name="ヤマセ精密工作所", sector="機械",
+def ev(ir=None, x=None, trend=None, code="9899", name="ヤマセ精密工作所", sector="機械",
        vr5=4.2, r1=8.3, r5=11.0):
     """handoff/01 §3 構造の evidence パックを生成"""
     return infer.build_evidence(
         {"code": code, "name": name, "sector": sector,
          "spikeDate": SPIKE, "vr5": vr5, "r1": r1, "r5": r5},
-        ir or [], x or [])
+        ir or [], x or [], trend or [])
 
 
 def run(evidence):
@@ -86,7 +86,7 @@ def test_evidence_pack_structure():
     assert e["stock"]["code"] == "9899"
     assert e["volume_spike_date"] == SPIKE
     assert set(e) == {"stock", "volume_spike_date", "stats",
-                      "ir_recent7d", "x_posts_48h", "instruction"}
+                      "ir_recent7d", "x_posts_48h", "x_post_trend_7d", "instruction"}
 
 
 # ---------------- 敵対的テスト T1〜T7 (統合・要APIキー) ----------------

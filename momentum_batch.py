@@ -11,6 +11,7 @@ J-Quants API (V2) から東証全銘柄の日次OHLCV+財務を取得し、
 
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -49,7 +50,7 @@ def http_json(url: str, headers: dict | None = None, retries: int = 4) -> dict:
             except Exception:  # noqa: BLE001
                 body = ""
             if e.code == 429 and attempt < retries - 1:
-                time.sleep(20)  # レートリミット(60req/分)の回復待ち
+                time.sleep(30)  # レートリミットの回復待ち(分単位の制限を跨ぐ)
                 continue
             if e.code >= 500 and attempt < retries - 1:
                 time.sleep(2 ** attempt)
@@ -96,21 +97,32 @@ def fetch_by_date_cached(endpoint: str, prefix: str,
     """日付ループ+ローカルキャッシュ。[(date, rows), ...] を返す"""
     CACHE_DIR.mkdir(exist_ok=True)
     out = []
+    coverage_end = None  # 契約プランのデータ提供終了日 (400のmessageから検出)
     for i, ds in iter_business_days(lookback):
         cache = CACHE_DIR / f"{prefix}_{ds}.json"
+        if coverage_end and ds > coverage_end:
+            out.append((ds, []))  # 契約範囲外: リクエストせずスキップ(429防止)
+            continue
         if cache.exists() and i > 0:
             rows = json.loads(cache.read_text())
         else:
             try:
                 rows = fetch_paginated(f"{BASE}{endpoint}?date={ds}", headers)
+                if i > 0:
+                    cache.write_text(json.dumps(rows, ensure_ascii=False))
             except ApiError as e:
                 if e.code != 400:
                     raise
-                # 休業日等でデータが無い日付は縮退してスキップ(詳細はログで確認)
-                print(f"警告: {endpoint} {ds} をスキップ ({e})", file=sys.stderr)
-                rows = []
-            if i > 0:
-                cache.write_text(json.dumps(rows, ensure_ascii=False))
+                # 契約プランの提供範囲外なら以降の日付をまとめてスキップ
+                m = re.search(r"(\d{4}-\d{2}-\d{2}) ~ (\d{4}-\d{2}-\d{2})", str(e))
+                if m and ds > m.group(2):
+                    coverage_end = m.group(2)
+                    print(f"警告: 契約プランの提供範囲は {m.group(1)}〜{m.group(2)}。"
+                          f"{endpoint} の {ds} 以降をスキップします", file=sys.stderr)
+                else:
+                    # 休業日等でデータが無い日付は縮退してスキップ
+                    print(f"警告: {endpoint} {ds} をスキップ ({e})", file=sys.stderr)
+                rows = []  # 失敗日はキャッシュしない(プラン変更後の汚染防止)
             time.sleep(REQ_INTERVAL_SEC)
         out.append((ds, rows))
     return out
@@ -465,6 +477,12 @@ def main() -> None:
     if not quotes:
         sys.exit("株価データが1件も取得できませんでした。"
                  "上記の警告ログ(HTTPエラーのmessage)を確認してください")
+    latest = max(r["date"] for rows in quotes.values() for r in rows[-1:])
+    week_ago = (datetime.now(JST).date() - timedelta(days=7)).strftime("%Y-%m-%d")
+    if latest < week_ago:
+        sys.exit(f"取得できた最新の株価が {latest} と古すぎます。"
+                 "契約プランのデータ提供範囲に直近日が含まれていない可能性が高いです"
+                 "(Freeプランは直近12週間が取得不可)。J-Quantsのプランをご確認ください")
     payload = build(listed, quotes, shares, earnings)
     OUT_PATH.parent.mkdir(exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")

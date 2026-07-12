@@ -159,9 +159,9 @@ option{color:#000}
 .btn.pri{background:var(--accent);color:#fff;border:0}
 .btn.dgr{color:var(--up)}
 
-.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20;
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:75;
   backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:76;
   background:var(--glass);backdrop-filter:var(--blur);
   -webkit-backdrop-filter:var(--blur);border-top:.5px solid var(--stroke2);
   border-radius:22px 22px 0 0;padding:6px 20px calc(24px + env(safe-area-inset-bottom));
@@ -805,8 +805,8 @@ function renderScreener(){
   $("#toDisp").textContent=to+"億円";
   $("#vN").value=n;$("#vTh").value=th;$("#toTh").value=to;
   $("#sortBy").value=sort;$("#mcapBand").value=mcap;
-  const key=n===1?"vr1":n<=5?"vr5":"vr20";
-  let list=state.data.stocks.filter(s=>s[key]>=th&&s.turnover>=to);
+  const key=n===1?"vr1":n<=3?"vr3":n<=5?"vr5":"vr20";
+  let list=state.data.stocks.filter(s=>(s[key]??0)>=th&&s.turnover>=to);
   if(mcap==="s")list=list.filter(s=>s.mcap!=null&&s.mcap<300);
   if(mcap==="m")list=list.filter(s=>s.mcap!=null&&s.mcap>=300&&s.mcap<3000);
   if(mcap==="l")list=list.filter(s=>s.mcap!=null&&s.mcap>=3000);
@@ -909,10 +909,11 @@ function closeSheet(viaHistory){
   if(state.sheetOpen&&!viaHistory)history.back();
   state.sheetOpen=false;
 }
+// 最後に開いたものから順に閉じる (シートは常に最後にpushされる)
 window.addEventListener("popstate",()=>{
-  if(state.manualOpen)closeManual(true);
-  else if(state.mapFull)closeMapFull(true);
-  else if(state.sheetOpen)closeSheet(true)});
+  if(state.sheetOpen)closeSheet(true);
+  else if(state.manualOpen)closeManual(true);
+  else if(state.mapFull)closeMapFull(true)});
 
 // ---- 取扱説明書 ----
 function openManual(){
@@ -1141,6 +1142,11 @@ function checkExitAlerts(){
   if(!hits.length)return;
   const key="ms_alerted_"+d.dataDate;
   if(localStorage.getItem(key))return;
+  // 過去日の通知済みフラグを掃除してから当日分を記録
+  for(let i=localStorage.length-1;i>=0;i--){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith("ms_alerted_")&&k!==key)localStorage.removeItem(k);
+  }
   localStorage.setItem(key,"1");
   const msg="⚠️ 撤退シグナル ("+d.dataDate+")\n"+
     hits.map(s=>`${s.name} (${s.code}): ${s.exit.join("・")}`).join("\n");

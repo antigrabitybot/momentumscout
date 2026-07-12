@@ -326,7 +326,7 @@ def call_claude(evidence: dict, api_key: str) -> dict:
     for _ in range(2):
         try:
             raw = anthropic_call(evidence, api_key)
-        except urllib.error.URLError as e:
+        except (urllib.error.URLError, TimeoutError) as e:  # read timeoutも再試行
             last_err = f"API呼び出し失敗: {e}"
             continue
         result = None
@@ -337,7 +337,8 @@ def call_claude(evidence: dict, api_key: str) -> dict:
         if result is None or validate_result(result) is not None:
             try:  # 構文崩れ・別オブジェクト混入はHaikuで修復を試みる
                 result = fix_json(raw, api_key)
-            except (ValueError, json.JSONDecodeError, urllib.error.URLError) as e:
+            except (ValueError, json.JSONDecodeError,
+                    urllib.error.URLError, TimeoutError) as e:
                 last_err = f"出力パース失敗: {e}"
                 continue
         err = validate_result(result)

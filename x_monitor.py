@@ -26,7 +26,7 @@ ACCOUNTS_PATH = Path("watch_accounts.json")
 DATA_PATH = Path("docs/data.json")            # momentum_batch.py の出力 (社名辞書に流用)
 CONFIDENCE_MIN = 0.7
 
-CODE_RE = re.compile(r"[\$＄\(（]?([1-9][0-9][0-9A-Z][0-9])[\)）]?")
+CODE_RE = re.compile(r"[\$＄\(（]?([1-9][0-9][0-9A-Z][0-9A-Z])[\)）]?")  # 新形式(130A等)対応
 INVEST_HINT_RE = re.compile(r"株|銘柄|買|売|上昇|急騰|決算|開示|材料|ストップ高|IR")
 
 
@@ -116,7 +116,8 @@ def notify(handle: str, tier: str, text: str, stocks: list[dict],
         name = info.get("name", st["code"])
         extra = ""
         if info:
-            extra = f"\n出来高×{info.get('vr5','-')} / 本日{info.get('r1',0):+.1f}% / 話題度{info.get('heat','-')}"
+            extra = (f"\n出来高×{info.get('vr5', '-')} / 本日{(info.get('r1') or 0):+.1f}% / "
+                     f"話題度{info.get('heat', '-')}")
         lines.append(
             f"🔔 X検知: {name} ({st['code']})\n"
             f"発信: @{handle}（Tier {tier}）\n"
@@ -143,15 +144,15 @@ def main() -> None:
     for acct in accounts:
         h = acct["handle"]
         st = state.setdefault(h, {})
-        if "user_id" not in st:  # 初回のみ ($0.010)
-            st["user_id"] = x_get(f"/users/by/username/{h}")["data"]["id"]
-        q = f"/users/{st['user_id']}/tweets?max_results=20&exclude=retweets,replies"
-        if st.get("since_id"):
-            q += f"&since_id={st['since_id']}"
         try:
+            if "user_id" not in st:  # 初回のみ ($0.010)
+                st["user_id"] = x_get(f"/users/by/username/{h}")["data"]["id"]
+            q = f"/users/{st['user_id']}/tweets?max_results=20&exclude=retweets,replies"
+            if st.get("since_id"):
+                q += f"&since_id={st['since_id']}"
             res = x_get(q)
-        except urllib.error.HTTPError as e:
-            print(f"@{h} 取得失敗 {e.code}", file=sys.stderr)
+        except Exception as e:  # noqa: BLE001  1アカウントの失敗で全体を止めない
+            print(f"@{h} 取得失敗 ({e})", file=sys.stderr)
             continue
         posts = res.get("data", [])
         if posts:

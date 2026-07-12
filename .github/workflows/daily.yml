@@ -1,0 +1,44 @@
+name: daily-batch
+
+on:
+  schedule:
+    - cron: "50 7 * * 1-5"   # 16:50 JST 平日 (UTC 7:50)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 日次株価キャッシュは揮発してよい(再取得可能)ため Actions cache
+      - name: Restore quote cache
+        uses: actions/cache@v4
+        with:
+          path: cache
+          key: quotes-${{ github.run_id }}
+          restore-keys: quotes-
+
+      # F-10成績ログ(cache/signals_log.jsonl)は消えると過去実績が失われるため
+      # 別途リポジトリにコミットして永続化する。checkoutで復元済み。
+      - name: Run batch
+        env:
+          JQUANTS_REFRESH_TOKEN: ${{ secrets.JQUANTS_REFRESH_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python momentum_batch.py
+
+      - name: Commit data.json and signal log
+        run: |
+          git config user.name "momentum-bot"
+          git config user.email "bot@users.noreply.github.com"
+          mkdir -p perf && cp -f cache/signals_log.jsonl perf/signals_log.jsonl 2>/dev/null || true
+          git add docs/data.json perf/signals_log.jsonl
+          git diff --cached --quiet || git commit -m "data: $(date +%Y-%m-%d)"
+          git push

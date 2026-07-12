@@ -1,0 +1,7 @@
+cache/
+perf/
+.vercel/
+docs/data.json
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -281,6 +281,14 @@ option{color:#000}
       <option value="m">中型 (300〜3,000億円)</option>
       <option value="l">大型 (3,000億円以上)</option>
     </select>
+    <label style="margin-top:14px">株価 (円)</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="number" id="pMin" placeholder="下限なし" inputmode="numeric"
+        min="0" style="flex:1">
+      <span style="color:var(--txt3)">〜</span>
+      <input type="number" id="pMax" placeholder="上限なし" inputmode="numeric"
+        min="0" style="flex:1">
+    </div>
     <label style="margin-top:14px">並び順</label>
     <select id="sortBy">
       <option value="vr">出来高変化率</option>
@@ -288,6 +296,7 @@ option{color:#000}
       <option value="heat">過熱度</option>
       <option value="turnover">売買代金</option>
       <option value="mcap">時価総額</option>
+      <option value="close">株価</option>
     </select>
   </div>
   <p class="sechead" id="scrCount"></p>
@@ -320,9 +329,10 @@ option{color:#000}
     </div>
   </div>
   <div class="ctl card">
-    <label>買い候補スコアの定時通知</label>
+    <label>買い候補スコアの通知</label>
     <p style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px">
-      毎営業日、指定した時刻にスコアN/7以上の銘柄をDiscordへ送信します
+      ①<b>データ更新直後(17時頃)</b>は自動で通知されます（設定不要・日次サマリーと同じWebhook）。
+      ②さらに下記で指定した時刻にも再通知します
       （GitHub Actions <span class="num">notify.yml</span> のcronを書き換えます）。</p>
     <div style="display:flex;gap:8px;align-items:center">
       <input type="time" id="notifyTime" value="08:30" style="flex:1">
@@ -421,7 +431,7 @@ option{color:#000}
       <tr><td>6</td><td>決算近接なし</td><td>決算まで3営業日超(または予定なし)</td></tr>
       <tr><td>7</td><td>業種に資金流入</td><td>所属業種のvr5中央値≥1.5</td></tr>
     </table></div>
-    <p class="tip">スコア5/7以上が朝8:30 Discord定時通知の既定対象。7/7・6/7はレアですが最も期待値が高い候補です。</p>
+    <p class="tip">スコア5/7以上がDiscord通知の既定対象。通知は①データ更新直後(17時頃)と②朝8:30の2回届きます。7/7・6/7はレアですが最も期待値が高い候補です。</p>
 
     <h2>③ 絞込画面(スクリーナー)</h2>
     <p>自分で条件を設定して絞り込む画面。設定は自動保存されます。並び順は基準期間・本日騰落率・過熱度・売買代金・時価総額から選択(最大100件表示)。</p>
@@ -432,6 +442,7 @@ option{color:#000}
 
     <h2>④ ウォッチ画面</h2>
     <p>★登録銘柄の一覧。撤退シグナルが出ている銘柄を最上段「⚠撤退シグナル」に赤く集約。下段「監視中」はシグナルなし銘柄がウォッチ登録順。アプリ起動時、ウォッチ銘柄の撤退シグナルをDiscordへ通知(同日1回)。</p>
+    <p>上位300圏外に落ちた銘柄も、最後に取得した時点のデータを端末に保存しているため、引き続きタップで詳細を確認できます(シートに「📦圏外」の表示付き)。</p>
 
     <h2>⑤ 設定画面</h2>
     <p><b>通知</b>: Webhook登録でウォッチ銘柄の撤退警告を起動時に送信(同日1回)。買い候補スコアの定時通知は本画面上部で時刻・スコアを設定しGitHubへ反映できます。</p>
@@ -443,6 +454,7 @@ option{color:#000}
     <p><b>ヘッダー</b>: ⚠決算バッジ(本日/明日/N営業日後)、⚡仕手警戒(時価総額100億未満&vr5≥5&5日騰落率≥+25%)、🏦機関参入?(時価総額300億+&代金30億+&vr5≥2&vr20≥1.8)、📌個別材料?(業種vr5中央値<1.2なのに個別vr5≥3)、◎n/7(スコア5以上で表示)。</p>
     <p><b>タグ</b>: 赤=撤退シグナル、緑=エントリーパターン。<b>出来高バー</b>: 直近20営業日、当日のみ騰落色で着色。</p>
     <div class="mtwrap"><table><tr><th>統計項目</th><th>補足</th></tr>
+      <tr><td>終値</td><td>データ基準日の引け値(リアルタイムではない)</td></tr>
       <tr><td>本日/3日/5日/20日騰落率</td><td>—</td></tr>
       <tr><td>出来高×前日/3日/5日/20日平均</td><td>×5日平均のみ 狙い目/強い/急騰⚠ ラベル</td></tr>
       <tr><td>時価総額・売買代金</td><td>—</td></tr>
@@ -545,7 +557,8 @@ option{color:#000}
 const $=s=>document.querySelector(s);
 const state={data:null,period:"vr5",
   watch:JSON.parse(localStorage.getItem("ms_watch")||"[]"),
-  scr:JSON.parse(localStorage.getItem("ms_scr")||'{"n":5,"th":2,"to":10,"sort":"vr","mcap":"all"}'),
+  scr:Object.assign({n:5,th:2,to:10,sort:"vr",mcap:"all",pmin:"",pmax:""},
+    JSON.parse(localStorage.getItem("ms_scr")||"{}")),
   current:null,bubbleChart:null,sparkChart:null,sheetOpen:false,sectorFilter:null,
   mapMode:"bubble",mapFull:false,manualOpen:false};
 
@@ -591,6 +604,7 @@ function chgColor(v,solid){const a=solid?1:.55;
 const fmt=(v,d=1)=>v==null?"—":Number(v).toFixed(d);
 const sign=v=>v==null?"—":(v>0?"+":"")+Number(v).toFixed(1)+"%";
 const fmtMcap=v=>v==null?"—":v>=10000?(v/10000).toFixed(1)+"兆円":v.toLocaleString()+"億円";
+const fmtPrice=v=>v==null?"—":"¥"+Number(v).toLocaleString("ja-JP",{maximumFractionDigits:1});
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2200)}
 
@@ -634,7 +648,7 @@ function row(s,showExit){
     <div class="rmain"><p class="rname">${s.name} ${earnPill(s)}${alertPills(s)}</p>
       <p class="rmeta num" ${showExit&&s.exit.length?'style="color:var(--up)"':""}>${meta}</p></div>
     <div class="rright"><p class="rchg num" style="color:${chgColor(s.r1,1)}">${sign(s.r1)}</p>
-      <p class="rsub num">${fmtMcap(s.mcap)}</p></div>
+      <p class="rsub num">${fmtPrice(s.close)}・${fmtMcap(s.mcap)}</p></div>
     <span class="chev">›</span></div>`}
 
 function secColor(v){ // vr5中央値→赤の濃淡
@@ -805,11 +819,14 @@ function renderScreener(){
   $("#toDisp").textContent=to+"億円";
   $("#vN").value=n;$("#vTh").value=th;$("#toTh").value=to;
   $("#sortBy").value=sort;$("#mcapBand").value=mcap;
+  $("#pMin").value=state.scr.pmin||"";$("#pMax").value=state.scr.pmax||"";
   const key=n===1?"vr1":n<=3?"vr3":n<=5?"vr5":"vr20";
   let list=state.data.stocks.filter(s=>(s[key]??0)>=th&&s.turnover>=to);
   if(mcap==="s")list=list.filter(s=>s.mcap!=null&&s.mcap<300);
   if(mcap==="m")list=list.filter(s=>s.mcap!=null&&s.mcap>=300&&s.mcap<3000);
   if(mcap==="l")list=list.filter(s=>s.mcap!=null&&s.mcap>=3000);
+  const pmin=+state.scr.pmin||0,pmax=+state.scr.pmax||Infinity;
+  if(pmin>0||pmax<Infinity)list=list.filter(s=>s.close>=pmin&&s.close<=pmax);
   const sk=sort==="vr"?key:sort;
   list.sort((a,b)=>(b[sk]??-1e18)-(a[sk]??-1e18));
   $("#scrCount").textContent=`${list.length}件が条件に一致`;
@@ -818,14 +835,19 @@ function renderScreener(){
 }
 
 function renderWatch(){
+  updateWatchCache();
   const list=state.data.stocks.filter(s=>state.watch.includes(s.code));
   const exits=list.filter(s=>s.exit.length);
   $("#exitBlock").style.display=exits.length?"block":"none";
   $("#exitList").innerHTML=exits.map(s=>row(s,true)).join("");
   const rest=list.filter(s=>!s.exit.length);
   const missing=state.watch.filter(c=>!list.find(s=>s.code===c));
-  $("#watchList").innerHTML=(rest.map(s=>row(s)).join(""))+
-    (missing.length?`<p class="sub" style="padding:12px 0">本日データ圏外: ${missing.join(", ")}</p>`:"")||
+  const wc=wcache();
+  const missRows=missing.filter(c=>wc[c]).map(c=>row(wc[c])).join("");
+  const missPlain=missing.filter(c=>!wc[c]);
+  $("#watchList").innerHTML=(rest.map(s=>row(s)).join(""))+missRows+
+    (missRows?`<p class="sub" style="padding:6px 0">↑ 圏外銘柄は最後に取得した時点のデータで表示しています（タップで詳細可）</p>`:"")+
+    (missPlain.length?`<p class="sub" style="padding:12px 0">データ未取得（一度も上位300に入っていません）: ${missPlain.join(", ")}</p>`:"")||
     `<p class="empty">ウォッチ銘柄はまだありません。<br>銘柄詳細の★から追加できます</p>`;
 }
 function renderPerf(){
@@ -857,8 +879,25 @@ function renderScores(){
 }
 function renderAll(){renderHome();renderScores();renderScreener();renderWatch();renderPerf()}
 
+// ---- 圏外ウォッチ銘柄の最終データキャッシュ ----
+// ウォッチ銘柄が上位300圏内にいる間、そのレコードを端末に保存しておき、
+// 圏外に落ちた後も最後に取得したデータで詳細シートを開けるようにする
+function wcache(){try{return JSON.parse(localStorage.getItem("ms_wcache")||"{}")}catch{return{}}}
+function updateWatchCache(){
+  if(!state.data||state.data.updated==="デモ")return;
+  const wc=wcache();
+  state.data.stocks.forEach(s=>{
+    if(state.watch.includes(s.code))wc[s.code]={...s,cachedDate:state.data.dataDate}});
+  Object.keys(wc).forEach(c=>{if(!state.watch.includes(c))delete wc[c]});
+  localStorage.setItem("ms_wcache",JSON.stringify(wc));
+}
+function findStock(code){
+  return state.data.stocks.find(x=>x.code===code)||wcache()[code]||null}
+
 function openSheet(code){
-  const s=state.data.stocks.find(x=>x.code===code);if(!s)return;
+  const live=state.data.stocks.find(x=>x.code===code);
+  const s=live||wcache()[code];if(!s)return;
+  const stale=!live;
   state.current=code;
   $("#dCode").textContent=s.code;$("#dName").textContent=s.name;
   const ef=earnFlag(s);
@@ -869,6 +908,7 @@ function openSheet(code){
   $("#lkTv").href=`https://jp.tradingview.com/chart/?symbol=TSE%3A${code}`;
   $("#lkKt").href=`https://kabutan.jp/stock/chart?code=${code}`;
   $("#dTags").innerHTML=
+    (stale?`<span class="tagw" style="background:rgba(142,142,147,.2);color:var(--txt2)">📦 圏外・${s.cachedDate||"?"}時点の最終データ</span>`:"")+
     s.exit.map(t=>`<span class="tagw">⚠ ${t}</span>`).join("")+
     alertPills(s)+(s.patterns.map(t=>`<span class="tagp">${t}</span>`).join("")||
     `<span style="font-size:12px;color:var(--txt3)">検出パターンなし</span>`);
@@ -878,7 +918,8 @@ function openSheet(code){
     `<div class="card listcard">${lags.map(s=>row(s)).join("")}</div>`+
     `<p style="font-size:10px;color:var(--txt3);margin-top:6px">業種一致に基づく機械的抽出であり、事業内容の類似性は保証されません</p>`:"";
   const hz=heatZone(s.heat),vz=vr5Zone(s.vr5);
-  const st=[["本日",sign(s.r1),chgColor(s.r1,1)],["3日",sign(s.r3),chgColor(s.r3,1)],
+  const st=[["終値",fmtPrice(s.close)],
+    ["本日",sign(s.r1),chgColor(s.r1,1)],["3日",sign(s.r3),chgColor(s.r3,1)],
     ["5日",sign(s.r5),chgColor(s.r5,1)],["20日",sign(s.r20),chgColor(s.r20,1)],
     ["出来高×前日",fmt(s.vr1)],["×3日平均",fmt(s.vr3)],
     ["×5日平均",fmt(s.vr5),null,vz],["×20日平均",fmt(s.vr20)],
@@ -1061,6 +1102,8 @@ $("#vTh").oninput=e=>{state.scr.th=+e.target.value;saveScr()};
 $("#toTh").oninput=e=>{state.scr.to=+e.target.value;saveScr()};
 $("#sortBy").onchange=e=>{state.scr.sort=e.target.value;saveScr()};
 $("#mcapBand").onchange=e=>{state.scr.mcap=e.target.value;saveScr()};
+$("#pMin").onchange=e=>{state.scr.pmin=e.target.value;saveScr()};
+$("#pMax").onchange=e=>{state.scr.pmax=e.target.value;saveScr()};
 
 // ---- タスク6: 推論ボタン (機能B・オンデマンド原因分析) ----
 $("#inferUrl").value=localStorage.getItem("ms_infer_url")||"";
@@ -1068,7 +1111,7 @@ $("#inferUrl").onchange=e=>{localStorage.setItem("ms_infer_url",e.target.value.t
   toast("保存しました")};
 const esc=t=>String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function inferCache(){try{return JSON.parse(localStorage.getItem("ms_infer")||"{}")}catch{return{}}}
-function inferKey(s){return`${s.code}:${state.data.dataDate}`}
+function inferKey(s){return`${s.code}:${s.cachedDate||state.data.dataDate}`}
 function confPill(c){const cls=c==="高"?"hi":c==="中"?"mid":"lo";
   return`<span class="cpill ${cls}">確信度 ${esc(c)}</span>`}
 function renderInferCard(r){
@@ -1094,7 +1137,7 @@ function renderInferArea(s){
   b.textContent=cached?"🔍 再推論する":"🔍 出来高増加の理由を推論";
 }
 $("#inferBtn").onclick=async()=>{
-  const s=state.data.stocks.find(x=>x.code===state.current);if(!s)return;
+  const s=findStock(state.current);if(!s)return;
   if(state.data.updated==="デモ")return toast("デモデータでは推論できません");
   const url=localStorage.getItem("ms_infer_url");
   if(!url)return toast("設定タブで推論APIのURLを入力してください");
@@ -1102,7 +1145,7 @@ $("#inferBtn").onclick=async()=>{
   try{
     const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({code:s.code,name:s.name,sector:s.sector||"",
-        spikeDate:state.data.dataDate,vr5:s.vr5,r1:s.r1,r5:s.r5})});
+        spikeDate:s.cachedDate||state.data.dataDate,vr5:s.vr5,r1:s.r1,r5:s.r5})});
     if(!res.ok){
       let msg=`APIエラー (${res.status})`;
       try{msg=(await res.json()).error||msg}catch{}

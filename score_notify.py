@@ -45,8 +45,13 @@ def main() -> None:
     req = urllib.request.Request(
         hook, data=json.dumps({"content": body[:1900]}).encode(),
         headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=15) as res:
-        res.read()
+    try:
+        with urllib.request.urlopen(req, timeout=15) as res:
+            res.read()
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Discord送信失敗 (HTTP {e.code})。DISCORD_WEBHOOK_URL の値が"
+                 "無効の可能性が高いです。Discordで新しいWebhook URLを発行し、"
+                 "リポジトリの Settings → Secrets → DISCORD_WEBHOOK_URL を更新してください")
     print(f"通知送信: {len(cand)}件 (スコア{score_min}以上)")
 
 

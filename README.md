@@ -37,8 +37,8 @@ x_monitor.py               F-13: Xアカウント監視 → 銘柄推定 → Dis
 docs/index.html            スマホ用アプリ本体 (ビルド不要・1ファイル・PWA)
 docs/data.json             バッチの出力 (index.htmlが読む)
 .github/workflows/daily.yml  平日16:50 JSTに自動実行
-score_notify.py            買い候補スコアのDiscord通知 (オプション)
-.github/workflows/notify.yml 平日8:30 JSTに候補を通知 (時刻・閾値はファイル内で変更)
+score_notify.py            買い候補スコアのDiscord通知 (daily.ymlがデータ更新直後に実行)
+.github/workflows/notify.yml スコア通知の手動実行用 (朝の定時再通知は既定で無効)
 watch_accounts.json        F-13の監視アカウント定義
 api/infer.py               機能B: 推論API (Vercel Serverless Function)
 vercel.json                Vercelのランタイム設定

@@ -330,27 +330,10 @@ option{color:#000}
   </div>
   <div class="ctl card">
     <label>買い候補スコアの通知</label>
-    <p style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px">
-      ①<b>データ更新直後(17時頃)</b>は自動で通知されます（設定不要・日次サマリーと同じWebhook）。
-      ②さらに下記で指定した時刻にも再通知します
-      （GitHub Actions <span class="num">notify.yml</span> のcronを書き換えます）。</p>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input type="time" id="notifyTime" value="08:30" style="flex:1">
-      <select id="notifyScore" style="flex:1">
-        <option value="7">7/7以上</option><option value="6">6/7以上</option>
-        <option value="5" selected>5/7以上</option><option value="4">4/7以上</option>
-        <option value="3">3/7以上</option>
-      </select>
-    </div>
-    <input type="password" id="ghToken" placeholder="GitHub Personal Access Token"
-      style="margin-top:10px" autocomplete="off">
-    <p style="font-size:11px;color:var(--txt3);line-height:1.6;margin-top:6px">
-      このリポジトリのみ・Contents: Read and write 権限の
-      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank"
-        rel="noopener" style="color:var(--accent)">fine-grained PAT</a> を発行して貼り付けてください。
-      端末内のみに保存され、保存操作時にGitHubへ直接送信されます（当サーバーは経由しません）。</p>
-    <button class="btn pri" id="saveNotify" style="margin-top:10px">この時刻をGitHubに反映</button>
-    <p id="notifyStatus" style="font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.6"></p>
+    <p style="font-size:13px;color:var(--txt2);line-height:1.7">
+      <b>データ更新の直後（平日17時頃）に自動で届きます</b>（設定不要・日次サマリーと
+      同じWebhookを使用）。届かない場合はGitHubリポジトリの
+      Settings → Secrets → <span class="num">DISCORD_WEBHOOK_URL</span> を確認してください。</p>
   </div>
   <div class="ctl card">
     <label>推論API（出来高増加の理由）</label>
@@ -431,7 +414,7 @@ option{color:#000}
       <tr><td>6</td><td>決算近接なし</td><td>決算まで3営業日超(または予定なし)</td></tr>
       <tr><td>7</td><td>業種に資金流入</td><td>所属業種のvr5中央値≥1.5</td></tr>
     </table></div>
-    <p class="tip">スコア5/7以上がDiscord通知の既定対象。通知は①データ更新直後(17時頃)と②朝8:30の2回届きます。7/7・6/7はレアですが最も期待値が高い候補です。</p>
+    <p class="tip">スコア5/7以上がDiscord通知の既定対象。通知はデータ更新の直後(平日17時頃)に自動で届きます。7/7・6/7はレアですが最も期待値が高い候補です。</p>
 
     <h2>③ 絞込画面(スクリーナー)</h2>
     <p>自分で条件を設定して絞り込む画面。設定は自動保存されます。並び順は基準期間・本日騰落率・過熱度・売買代金・時価総額から選択(最大100件表示)。</p>
@@ -445,7 +428,7 @@ option{color:#000}
     <p>上位300圏外に落ちた銘柄も、最後に取得した時点のデータを端末に保存しているため、引き続きタップで詳細を確認できます(シートに「📦圏外」の表示付き)。</p>
 
     <h2>⑤ 設定画面</h2>
-    <p><b>通知</b>: Webhook登録でウォッチ銘柄の撤退警告を起動時に送信(同日1回)。買い候補スコアの定時通知は本画面上部で時刻・スコアを設定しGitHubへ反映できます。</p>
+    <p><b>通知</b>: Webhook登録でウォッチ銘柄の撤退警告を起動時に送信(同日1回)。買い候補スコアはデータ更新の直後(平日17時頃)に日次サマリーと同じWebhookへ自動通知されます。</p>
     <p><b>推論API</b>: VercelのAPI URLを登録すると銘柄詳細の🔍推論ボタンが有効に。1回15〜25円(同日同銘柄は再課金なし)。</p>
     <p><b>シグナル成績</b>: 直近90日の発生履歴から勝率・平均リターンを表示(発生3回以上のみ)。撤退シグナルは「翌日下落率」、パターンは「翌日上昇率」が勝率。avg5dは5営業日後平均リターン。</p>
 
@@ -974,81 +957,6 @@ function closeManual(viaHistory){
 $("#openManual").onclick=openManual;
 $("#manualClose").onclick=()=>closeManual();
 
-// ---- 買い候補スコア定時通知の時刻設定 (GitHub Contents APIでnotify.ymlを直接編集) ----
-function repoInfo(){
-  const owner=location.hostname.split(".")[0];
-  const repo=(location.pathname.split("/").filter(Boolean)[0])||"";
-  return{owner,repo,ok:location.hostname.endsWith("github.io")&&!!repo};
-}
-function b64EncodeUtf8(str){
-  const bytes=new TextEncoder().encode(str);let bin="";
-  bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin);
-}
-function b64DecodeUtf8(b64){
-  const bin=atob(b64.replace(/\n/g,""));
-  const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-// JST HH:MM → UTC cron (平日Mon-Fri JSTになるようdow境界をhour=9で切替。既定8:30の実装と同じ考え方)
-function jstTimeToCron(hhmm){
-  const[h,m]=hhmm.split(":").map(Number);
-  return h>=9?{min:m,hour:h-9,dow:"1-5"}:{min:m,hour:h+15,dow:"0-4"};
-}
-async function loadNotifyPrefill(){
-  const{owner,repo,ok}=repoInfo();
-  if(!ok)return;
-  try{
-    const res=await fetch(
-      `https://raw.githubusercontent.com/${owner}/${repo}/main/.github/workflows/notify.yml`,
-      {cache:"no-store"});
-    if(!res.ok)return;
-    const text=await res.text();
-    const cm=text.match(/cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+[\d,-]+"/);
-    const sm=text.match(/SCORE_MIN:\s*"(\d+)"/);
-    if(cm){
-      const min=+cm[1],hour=+cm[2];
-      const total=(hour*60+min+540)%1440; // UTC→JST (+9h)
-      $("#notifyTime").value=
-        `${String(Math.floor(total/60)).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
-    }
-    if(sm)$("#notifyScore").value=sm[1];
-  }catch(e){/* 取得失敗時は入力欄の初期値のまま */}
-}
-async function saveNotifySchedule(){
-  const{owner,repo,ok}=repoInfo();
-  const status=$("#notifyStatus"),token=$("#ghToken").value.trim(),time=$("#notifyTime").value;
-  if(!ok){status.textContent="GitHub Pages上でのみ利用できます";return}
-  if(!token){status.textContent="GitHub Personal Access Tokenを入力してください";return}
-  if(!time){status.textContent="時刻を入力してください";return}
-  const score=$("#notifyScore").value;
-  const{min,hour,dow}=jstTimeToCron(time);
-  status.textContent="GitHubに反映中…";
-  const api=`https://api.github.com/repos/${owner}/${repo}/contents/.github/workflows/notify.yml`;
-  try{
-    const getRes=await fetch(api,
-      {headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json"}});
-    if(!getRes.ok){
-      status.textContent=getRes.status===401?"トークンが無効です":
-        getRes.status===404?"notify.ymlが見つかりません":`取得エラー (${getRes.status})`;
-      return}
-    const meta=await getRes.json();
-    let content=b64DecodeUtf8(meta.content);
-    content=content.replace(/cron:\s*"[^"]+"/,`cron: "${min} ${hour} * * ${dow}"`);
-    content=content.replace(/SCORE_MIN:\s*"[^"]+"/,`SCORE_MIN: "${score}"`);
-    const putRes=await fetch(api,{method:"PUT",
-      headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json",
-        "Content-Type":"application/json"},
-      body:JSON.stringify({
-        message:`chore: 通知時刻を${time} JST・スコア${score}/7に変更`,
-        content:b64EncodeUtf8(content),sha:meta.sha})});
-    if(!putRes.ok){
-      const j=await putRes.json().catch(()=>({}));
-      status.textContent=`反映失敗 (${putRes.status}) ${j.message||""}`;return}
-    status.textContent=`反映しました。次回の平日${time}(JST)から適用されます`;
-  }catch(e){status.textContent="通信エラー: "+e.message}
-}
-$("#saveNotify").onclick=saveNotifySchedule;
-loadNotifyPrefill();
 $("#sheetBg").onclick=()=>closeSheet();
 $("#sheetClose").onclick=()=>closeSheet();
 (()=>{ // 下スワイプで閉じる

@@ -44,13 +44,20 @@ def main() -> None:
 
     req = urllib.request.Request(
         hook, data=json.dumps({"content": body[:1900]}).encode(),
-        headers={"Content-Type": "application/json"})
+        # User-Agent未設定だとDiscord(Cloudflare)がbot判定で403を返すことがあるため明示
+        headers={"Content-Type": "application/json", "User-Agent": "MomentumScout/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as res:
             res.read()
     except urllib.error.HTTPError as e:
-        sys.exit(f"Discord送信失敗 (HTTP {e.code})。DISCORD_WEBHOOK_URL の値が"
-                 "無効の可能性が高いです。Discordで新しいWebhook URLを発行し、"
+        body_txt = ""
+        try:
+            body_txt = e.read().decode()[:300]
+        except Exception:  # noqa: BLE001
+            pass
+        sys.exit(f"Discord送信失敗 (HTTP {e.code}: {body_txt})。"
+                 "DISCORD_WEBHOOK_URL の値が無効か、Webhookが削除された可能性があります。"
+                 "Discordで新しいWebhook URLを発行し、"
                  "リポジトリの Settings → Secrets → DISCORD_WEBHOOK_URL を更新してください")
     print(f"通知送信: {len(cand)}件 (スコア{score_min}以上)")
 

@@ -506,10 +506,19 @@ def notify_discord(payload: dict) -> None:
         for s in soon:
             lines.append(f"{s['name']} ({s['code']}): {s['earnDate']} 発表予定")
     body = json.dumps({"content": "\n".join(lines)[:1900]}).encode()
-    req = urllib.request.Request(url, data=body, method="POST",
-                                 headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(
+        url, data=body, method="POST",
+        # User-Agent未設定だとDiscord(Cloudflare)がbot判定で403を返すことがあるため明示
+        headers={"Content-Type": "application/json", "User-Agent": "MomentumScout/1.0"})
     try:
         urllib.request.urlopen(req, timeout=30)
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode()[:300]
+        except Exception:  # noqa: BLE001
+            pass
+        print(f"Discord通知失敗: HTTP {e.code} {detail}", file=sys.stderr)
     except urllib.error.URLError as e:
         print(f"Discord通知失敗: {e}", file=sys.stderr)
 

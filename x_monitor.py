@@ -125,9 +125,10 @@ def notify(handle: str, tier: str, text: str, stocks: list[dict],
             f"https://www.google.com/finance/quote/{st['code']}:TYO"
         )
     body = json.dumps({"content": "\n\n".join(lines)[:1900]}).encode()
-    req = urllib.request.Request(url, data=body,
-                                 headers={"Content-Type": "application/json"},
-                                 method="POST")
+    req = urllib.request.Request(
+        url, data=body, method="POST",
+        # User-Agent未設定だとDiscord(Cloudflare)がbot判定で403を返すことがあるため明示
+        headers={"Content-Type": "application/json", "User-Agent": "MomentumScout/1.0"})
     urllib.request.urlopen(req, timeout=30)
 
 

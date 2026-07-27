@@ -61,7 +61,7 @@
 {"date": "2026-07-13", "code": "258A", "close": 2092.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 4.21, "r5d": null}
 {"date": "2026-07-13", "code": "472A", "close": 590.0, "signals": ["過熱度70+", "出来高最大の陰線", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": -1.69, "r5d": -5.42}
 {"date": "2026-07-13", "code": "7523", "close": 1905.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
-{"date": "2026-07-13", "code": "5018", "close": 2128.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.97, "r5d": null}
+{"date": "2026-07-13", "code": "5018", "close": 2128.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.97, "r5d": 0.94}
 {"date": "2026-07-13", "code": "3168", "close": 1450.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -7.52, "r5d": -18.62}
 {"date": "2026-07-13", "code": "8927", "close": 469.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -0.85, "r5d": null}
 {"date": "2026-07-13", "code": "7373", "close": 1013.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": -0.79, "r5d": 0.3}
@@ -152,7 +152,7 @@
 {"date": "2026-07-14", "code": "299A", "close": 1102.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -0.73, "r5d": -1.54}
 {"date": "2026-07-14", "code": "2338", "close": 130.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-14", "code": "3048", "close": 1643.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -0.64, "r5d": 4.41}
-{"date": "2026-07-14", "code": "4434", "close": 2058.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": 0.39, "r5d": null}
+{"date": "2026-07-14", "code": "4434", "close": 2058.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": 0.39, "r5d": 0.58}
 {"date": "2026-07-14", "code": "6521", "close": 3830.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 3.13, "r5d": -10.57}
 {"date": "2026-07-14", "code": "3046", "close": 6030.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.32, "r5d": 9.95}
 {"date": "2026-07-14", "code": "7713", "close": 2006.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": 4.94, "r5d": 1.0}
@@ -171,7 +171,7 @@
 {"date": "2026-07-14", "code": "8200", "close": 2388.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -0.04, "r5d": -5.15}
 {"date": "2026-07-14", "code": "7711", "close": 5030.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": 1.99, "r5d": -8.65}
 {"date": "2026-07-14", "code": "4661", "close": 2745.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -4.48, "r5d": -0.36}
-{"date": "2026-07-14", "code": "6496", "close": 5920.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -7.09, "r5d": null}
+{"date": "2026-07-14", "code": "6496", "close": 5920.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -7.09, "r5d": -8.28}
 {"date": "2026-07-14", "code": "9887", "close": 5090.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -1.87, "r5d": -3.34}
 {"date": "2026-07-14", "code": "3148", "close": 3390.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 0.59, "r5d": -1.33}
 {"date": "2026-07-15", "code": "4439", "close": 898.0, "signals": ["過熱度70+", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
@@ -181,7 +181,7 @@
 {"date": "2026-07-15", "code": "4668", "close": 770.0, "signals": ["過熱度70+", "RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 2.34, "r5d": null}
 {"date": "2026-07-15", "code": "339A", "close": 883.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-15", "code": "1595", "close": 1886.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": -2.55, "r5d": 0.58}
-{"date": "2026-07-15", "code": "381A", "close": 2247.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.09, "r5d": null}
+{"date": "2026-07-15", "code": "381A", "close": 2247.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.09, "r5d": 0.71}
 {"date": "2026-07-15", "code": "1430", "close": 1038.0, "signals": ["過熱度70+", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-15", "code": "2529", "close": 2256.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-15", "code": "6083", "close": 1500.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -2.67, "r5d": 2.07}
@@ -249,7 +249,7 @@
 {"date": "2026-07-16", "code": "157A", "close": 1015.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -14.09, "r5d": null}
 {"date": "2026-07-16", "code": "9326", "close": 510.0, "signals": ["過熱度70+", "長い上ヒゲ+出来高急増", "出来高最大の陰線", "RSI 80+"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-16", "code": "5575", "close": 978.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 11.15, "r5d": 10.74}
-{"date": "2026-07-16", "code": "8101", "close": 2580.0, "signals": ["出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -1.67, "r5d": null}
+{"date": "2026-07-16", "code": "8101", "close": 2580.0, "signals": ["出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -1.67, "r5d": 5.81}
 {"date": "2026-07-16", "code": "7610", "close": 151.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": -1.32, "r5d": -1.32}
 {"date": "2026-07-16", "code": "6044", "close": 1899.0, "signals": ["過熱度70+", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -0.21, "r5d": null}
 {"date": "2026-07-16", "code": "414A", "close": 801.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.0, "r5d": null}
@@ -296,7 +296,7 @@
 {"date": "2026-07-16", "code": "6866", "close": 11230.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": -3.47, "r5d": 3.21}
 {"date": "2026-07-16", "code": "3558", "close": 1677.0, "signals": ["出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -1.31, "r5d": -0.06}
 {"date": "2026-07-16", "code": "3479", "close": 1826.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": -2.96, "r5d": 0.38}
-{"date": "2026-07-16", "code": "4434", "close": 1939.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -8.61, "r5d": null}
+{"date": "2026-07-16", "code": "4434", "close": 1939.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -8.61, "r5d": 6.76}
 {"date": "2026-07-16", "code": "2384", "close": 4535.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 0.55, "r5d": -1.76}
 {"date": "2026-07-16", "code": "3697", "close": 679.8, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 9.36, "r5d": 9.71}
 {"date": "2026-07-16", "code": "6670", "close": 2184.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
@@ -321,21 +321,21 @@
 {"date": "2026-07-17", "code": "4563", "close": 48.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
 {"date": "2026-07-17", "code": "7581", "close": 7600.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -4.21, "r5d": -2.24}
 {"date": "2026-07-17", "code": "354A", "close": 3150.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": 0.95, "r5d": null}
-{"date": "2026-07-17", "code": "6166", "close": 660.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.27, "r5d": null}
+{"date": "2026-07-17", "code": "6166", "close": 660.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.27, "r5d": -3.64}
 {"date": "2026-07-17", "code": "2326", "close": 3995.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": 2.13, "r5d": -1.5}
 {"date": "2026-07-17", "code": "5242", "close": 1230.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": 16.18, "r5d": 79.59}
 {"date": "2026-07-17", "code": "3198", "close": 2225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": 0.0}
 {"date": "2026-07-17", "code": "542A", "close": 1084.0, "signals": ["出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "4829", "close": 106.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "6643", "close": 5180.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-17", "code": "2568", "close": 7970.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.13, "r5d": null}
+{"date": "2026-07-17", "code": "2568", "close": 7970.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.13, "r5d": 0.44}
 {"date": "2026-07-17", "code": "1384", "close": 1957.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "2526", "close": 36490.0, "signals": ["出来高急減+失速"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "3997", "close": 337.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "2249", "close": 9878.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "4572", "close": 312.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 7.37, "r5d": null}
 {"date": "2026-07-17", "code": "235A", "close": 1377.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -1.02, "r5d": null}
-{"date": "2026-07-17", "code": "8871", "close": 3300.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": 1.97, "r5d": null}
+{"date": "2026-07-17", "code": "8871", "close": 3300.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": 1.97, "r5d": 2.27}
 {"date": "2026-07-17", "code": "540A", "close": 1998.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.05, "r5d": 7.06}
 {"date": "2026-07-17", "code": "7722", "close": 772.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "412A", "close": 4129.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
@@ -349,7 +349,7 @@
 {"date": "2026-07-17", "code": "9991", "close": 1615.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "9908", "close": 2630.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "4011", "close": 1930.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-17", "code": "6047", "close": 350.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 6.29, "r5d": null}
+{"date": "2026-07-17", "code": "6047", "close": 350.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 6.29, "r5d": 3.43}
 {"date": "2026-07-17", "code": "1369", "close": 65200.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.96, "r5d": 0.38}
 {"date": "2026-07-17", "code": "7952", "close": 3205.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "3282", "close": 104000.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.73, "r5d": -0.1}
@@ -357,7 +357,7 @@
 {"date": "2026-07-17", "code": "6235", "close": 3115.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.93, "r5d": 4.01}
 {"date": "2026-07-17", "code": "563A", "close": 1061.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 1.32, "r5d": -0.09}
 {"date": "2026-07-17", "code": "2516", "close": 555.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.97, "r5d": -2.32}
-{"date": "2026-07-17", "code": "3393", "close": 3065.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-17", "code": "3393", "close": 3065.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.98, "r5d": 0.98}
 {"date": "2026-07-17", "code": "5532", "close": 3595.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
 {"date": "2026-07-17", "code": "6208", "close": 1631.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-17", "code": "3452", "close": 1433.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.72, "r5d": null}
@@ -467,9 +467,9 @@
 {"date": "2026-07-22", "code": "314A", "close": 317.9, "signals": [], "patterns": ["窓開け上昇"], "r1d": 0.16, "r5d": null}
 {"date": "2026-07-22", "code": "6085", "close": 128.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -7.03, "r5d": null}
 {"date": "2026-07-22", "code": "3104", "close": 4085.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": -0.24, "r5d": null}
-{"date": "2026-07-22", "code": "6706", "close": 3010.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-22", "code": "6706", "close": 3010.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": 0.33, "r5d": null}
 {"date": "2026-07-22", "code": "7018", "close": 10910.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": -2.75, "r5d": null}
-{"date": "2026-07-22", "code": "5122", "close": 5510.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-22", "code": "5122", "close": 5510.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": 3.45, "r5d": null}
 {"date": "2026-07-22", "code": "1306", "close": 420.3, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.43, "r5d": null}
 {"date": "2026-07-22", "code": "8708", "close": 1653.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": -0.3, "r5d": null}
 {"date": "2026-07-22", "code": "4424", "close": 357.0, "signals": ["25日線乖離+25%超"], "patterns": ["包み陽線"], "r1d": -8.12, "r5d": null}
@@ -486,7 +486,7 @@
 {"date": "2026-07-23", "code": "9090", "close": 916.0, "signals": ["過熱度70+", "出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": 0.66, "r5d": null}
 {"date": "2026-07-23", "code": "3198", "close": 2225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
 {"date": "2026-07-23", "code": "2268", "close": 4100.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -0.37, "r5d": null}
-{"date": "2026-07-23", "code": "4052", "close": 330.0, "signals": ["過熱度70+", "出来高最大の陰線", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-23", "code": "4052", "close": 330.0, "signals": ["過熱度70+", "出来高最大の陰線", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": 21.52, "r5d": null}
 {"date": "2026-07-23", "code": "4883", "close": 34.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-23", "code": "194A", "close": 1542.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-23", "code": "5253", "close": 1545.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -12.62, "r5d": null}
@@ -517,73 +517,135 @@
 {"date": "2026-07-23", "code": "6200", "close": 699.0, "signals": ["長い上ヒゲ+出来高急増", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": 3.58, "r5d": null}
 {"date": "2026-07-23", "code": "8282", "close": 1863.5, "signals": [], "patterns": ["窓開け上昇"], "r1d": 1.07, "r5d": null}
 {"date": "2026-07-23", "code": "4326", "close": 1941.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-23", "code": "2693", "close": 410.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-23", "code": "2693", "close": 410.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -16.83, "r5d": null}
 {"date": "2026-07-23", "code": "9267", "close": 3735.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": 1.2, "r5d": null}
 {"date": "2026-07-23", "code": "2345", "close": 104.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-23", "code": "6080", "close": 3735.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": 0.0, "r5d": null}
 {"date": "2026-07-23", "code": "3472", "close": 64200.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -0.31, "r5d": null}
-{"date": "2026-07-23", "code": "9425", "close": 226.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
+{"date": "2026-07-23", "code": "9425", "close": 226.0, "signals": [], "patterns": ["包み陽線"], "r1d": -5.75, "r5d": null}
 {"date": "2026-07-23", "code": "1847", "close": 2752.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
 {"date": "2026-07-23", "code": "1651", "close": 3192.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -0.19, "r5d": null}
 {"date": "2026-07-23", "code": "5892", "close": 1963.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -0.05, "r5d": null}
 {"date": "2026-07-23", "code": "7279", "close": 2227.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -0.9, "r5d": null}
 {"date": "2026-07-23", "code": "8914", "close": 952.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": -2.42, "r5d": null}
 {"date": "2026-07-23", "code": "1629", "close": 263.6, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -0.3, "r5d": null}
-{"date": "2026-07-23", "code": "4381", "close": 403.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6548", "close": 108.0, "signals": ["過熱度70+", "長い上ヒゲ+出来高急増", "RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-23", "code": "4381", "close": 403.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": -4.71, "r5d": null}
+{"date": "2026-07-24", "code": "6548", "close": 108.0, "signals": ["過熱度70+", "長い上ヒゲ+出来高急増", "RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 9.26, "r5d": null}
 {"date": "2026-07-24", "code": "7551", "close": 731.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1518", "close": 2241.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "1518", "close": 2241.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 6.25, "r5d": null}
 {"date": "2026-07-24", "code": "1486", "close": 24225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "3912", "close": 1050.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "3907", "close": 1110.0, "signals": ["過熱度70+", "長い上ヒゲ+出来高急増", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6858", "close": 876.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "3907", "close": 1110.0, "signals": ["過熱度70+", "長い上ヒゲ+出来高急増", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": 5.05, "r5d": null}
+{"date": "2026-07-24", "code": "6858", "close": 876.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -7.08, "r5d": null}
 {"date": "2026-07-24", "code": "2673", "close": 93.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "5659", "close": 1452.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6999", "close": 2782.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "5659", "close": 1452.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": -3.65, "r5d": null}
+{"date": "2026-07-24", "code": "6999", "close": 2782.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": -8.34, "r5d": null}
 {"date": "2026-07-24", "code": "7034", "close": 453.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "8541", "close": 2794.0, "signals": ["過熱度70+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "8541", "close": 2794.0, "signals": ["過熱度70+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 4.4, "r5d": null}
 {"date": "2026-07-24", "code": "2093", "close": 5461.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "281A", "close": 450.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "3624", "close": 70.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "8275", "close": 977.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "2620", "close": 377.8, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1723", "close": 2510.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "3198", "close": 2225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "1723", "close": 2510.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -4.22, "r5d": null}
+{"date": "2026-07-24", "code": "3198", "close": 2225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
 {"date": "2026-07-24", "code": "504A", "close": 468.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
 {"date": "2026-07-24", "code": "2459", "close": 185.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "3856", "close": 517.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "2804", "close": 1831.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "3856", "close": 517.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": 0.58, "r5d": null}
+{"date": "2026-07-24", "code": "2804", "close": 1831.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": 0.93, "r5d": null}
 {"date": "2026-07-24", "code": "6031", "close": 238.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6890", "close": 8920.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "4973", "close": 4425.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "6890", "close": 8920.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": -3.36, "r5d": null}
+{"date": "2026-07-24", "code": "4973", "close": 4425.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.9, "r5d": null}
 {"date": "2026-07-24", "code": "8705", "close": 221.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "7970", "close": 2257.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "5240", "close": 213.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "8919", "close": 3310.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1964", "close": 4130.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "9256", "close": 2120.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "7970", "close": 2257.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.0, "r5d": null}
+{"date": "2026-07-24", "code": "5240", "close": 213.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": 17.37, "r5d": null}
+{"date": "2026-07-24", "code": "8919", "close": 3310.0, "signals": [], "patterns": ["包み陽線"], "r1d": 2.11, "r5d": null}
+{"date": "2026-07-24", "code": "1964", "close": 4130.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -6.17, "r5d": null}
+{"date": "2026-07-24", "code": "9256", "close": 2120.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 10.66, "r5d": null}
 {"date": "2026-07-24", "code": "2484", "close": 137.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6653", "close": 2218.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "4828", "close": 1179.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "3076", "close": 2732.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "4997", "close": 1085.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "5242", "close": 2209.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "4424", "close": 379.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6146", "close": 60890.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "6653", "close": 2218.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.81, "r5d": null}
+{"date": "2026-07-24", "code": "4828", "close": 1179.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": 3.22, "r5d": null}
+{"date": "2026-07-24", "code": "3076", "close": 2732.0, "signals": [], "patterns": ["包み陽線"], "r1d": 3.62, "r5d": null}
+{"date": "2026-07-24", "code": "4997", "close": 1085.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": -0.37, "r5d": null}
+{"date": "2026-07-24", "code": "5242", "close": 2209.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": 22.63, "r5d": null}
+{"date": "2026-07-24", "code": "4424", "close": 379.0, "signals": ["25日線乖離+25%超"], "patterns": [], "r1d": 7.92, "r5d": null}
+{"date": "2026-07-24", "code": "6146", "close": 60890.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.89, "r5d": null}
 {"date": "2026-07-24", "code": "8226", "close": 349.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "2012", "close": 248.2, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "2012", "close": 248.2, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["20日高値ブレイク"], "r1d": -0.12, "r5d": null}
 {"date": "2026-07-24", "code": "6574", "close": 87.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "9960", "close": 4090.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "7564", "close": 5810.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "9960", "close": 4090.0, "signals": [], "patterns": ["包み陽線"], "r1d": -0.49, "r5d": null}
+{"date": "2026-07-24", "code": "7564", "close": 5810.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": 0.52, "r5d": null}
 {"date": "2026-07-24", "code": "7048", "close": 152.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1482", "close": 1536.0, "signals": ["出来高急減+失速"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "5110", "close": 2139.5, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "1482", "close": 1536.0, "signals": ["出来高急減+失速"], "patterns": [], "r1d": 0.46, "r5d": null}
+{"date": "2026-07-24", "code": "5110", "close": 2139.5, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 4.72, "r5d": null}
 {"date": "2026-07-24", "code": "1546", "close": 82960.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "9757", "close": 1117.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1980", "close": 2630.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "3269", "close": 150600.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "1965", "close": 6570.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "6629", "close": 1031.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "8600", "close": 1024.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "8848", "close": 650.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
-{"date": "2026-07-24", "code": "7148", "close": 1593.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": null, "r5d": null}
+{"date": "2026-07-24", "code": "9757", "close": 1117.0, "signals": [], "patterns": ["包み陽線"], "r1d": 1.52, "r5d": null}
+{"date": "2026-07-24", "code": "1980", "close": 2630.0, "signals": [], "patterns": ["包み陽線"], "r1d": -0.08, "r5d": null}
+{"date": "2026-07-24", "code": "3269", "close": 150600.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 0.33, "r5d": null}
+{"date": "2026-07-24", "code": "1965", "close": 6570.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": -3.35, "r5d": null}
+{"date": "2026-07-24", "code": "6629", "close": 1031.0, "signals": [], "patterns": ["包み陽線"], "r1d": -4.85, "r5d": null}
+{"date": "2026-07-24", "code": "8600", "close": 1024.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": 2.54, "r5d": null}
+{"date": "2026-07-24", "code": "8848", "close": 650.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": 2.15, "r5d": null}
+{"date": "2026-07-24", "code": "7148", "close": 1593.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": 2.07, "r5d": null}
+{"date": "2026-07-27", "code": "8995", "close": 943.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3174", "close": 454.0, "signals": ["長い上ヒゲ+出来高急増", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2514", "close": 2005.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "5958", "close": 4685.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2656", "close": 156.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6870", "close": 2538.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "7819", "close": 995.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4366", "close": 442.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1477", "close": 3346.0, "signals": ["出来高最大の陰線"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3198", "close": 2225.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3132", "close": 3579.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2641", "close": 4449.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1348", "close": 4222.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "9029", "close": 2080.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2634", "close": 3097.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "381A", "close": 2263.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4052", "close": 401.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4628", "close": 9010.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "7942", "close": 2543.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2693", "close": 341.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "399A", "close": 2291.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1593", "close": 37670.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "9663", "close": 5220.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3907", "close": 1166.0, "signals": ["長い上ヒゲ+出来高急増", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2437", "close": 680.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6653", "close": 2236.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6629", "close": 981.0, "signals": ["出来高最大の陰線", "包み陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3993", "close": 2801.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3159", "close": 367.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6496", "close": 5430.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2013", "close": 316.5, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4434", "close": 2070.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "9308", "close": 1860.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6993", "close": 101.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4832", "close": 2050.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "5911", "close": 3005.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1964", "close": 3875.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4046", "close": 1867.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6330", "close": 2095.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "9603", "close": 1051.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1518", "close": 2381.0, "signals": ["過熱度70+", "RSI 80+", "25日線乖離+25%超"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1482", "close": 1543.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "7175", "close": 1787.0, "signals": ["出来高最大の陰線", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "7932", "close": 12450.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6548", "close": 118.0, "signals": ["長い上ヒゲ+出来高急増", "RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4928", "close": 4785.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3196", "close": 1661.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6023", "close": 2840.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "7102", "close": 3880.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6470", "close": 1103.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3561", "close": 1667.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3844", "close": 1382.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3662", "close": 1000.0, "signals": ["長い上ヒゲ+出来高急増", "出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4519", "close": 6848.0, "signals": ["出来高最大の陰線"], "patterns": [], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "8383", "close": 1767.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "2640", "close": 3790.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1879", "close": 2124.0, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "6436", "close": 4039.0, "signals": ["RSI 80+"], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "1326", "close": 61430.0, "signals": ["長い上ヒゲ+出来高急増"], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "3002", "close": 4065.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "5240", "close": 250.0, "signals": ["25日線乖離+25%超"], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}
+{"date": "2026-07-27", "code": "4687", "close": 1070.0, "signals": [], "patterns": ["20日高値ブレイク", "窓開け上昇"], "r1d": null, "r5d": null}

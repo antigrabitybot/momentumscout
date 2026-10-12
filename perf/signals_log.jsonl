@@ -3615,3 +3615,4 @@
 {"date": "2026-10-09", "code": "424A", "close": 318.2, "signals": [], "patterns": ["窓開け上昇"], "r1d": null, "r5d": null}
 {"date": "2026-10-09", "code": "6668", "close": 4925.0, "signals": [], "patterns": ["包み陽線"], "r1d": null, "r5d": null}
 {"date": "2026-10-09", "code": "277A", "close": 1912.0, "signals": [], "patterns": ["20日高値ブレイク", "包み陽線"], "r1d": null, "r5d": null}
+{"date": "2026-10-09", "code": "4847", "close": 1566.0, "signals": [], "patterns": ["20日高値ブレイク"], "r1d": null, "r5d": null}
